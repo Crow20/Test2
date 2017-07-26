@@ -8,6 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.sike.xv.engine.Plate;
+import com.sike.xv.manager.GameManager;
+
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     Button start;
@@ -15,6 +20,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button pref;
     Button exit;
     Button continuegame;
+    ArrayList<Plate> plates;
+    GameManager manager;
 
 
     @Override
@@ -35,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pref.setOnClickListener(this);
         start.setOnClickListener(this);
         stat.setOnClickListener(this);
+
+        manager = new GameManager();
     }
 
     @Override
@@ -56,4 +65,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
 }

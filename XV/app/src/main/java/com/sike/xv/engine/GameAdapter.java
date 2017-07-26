@@ -20,12 +20,14 @@ public class GameAdapter extends BaseAdapter {
     Context ctx;
     LayoutInflater lInflater;
     ArrayList<Button> objects;
+    ArrayList<ArrayList<Integer>> numbers;
 
-    public GameAdapter(Context context, ArrayList<Button> buttons) {
+    public GameAdapter(Context context, ArrayList<Button> buttons, ArrayList<ArrayList<Integer>> numberslist) {
         ctx = context;
         objects = buttons;
         lInflater = (LayoutInflater) ctx
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        numbers = numberslist;
     }
 
     @Override
