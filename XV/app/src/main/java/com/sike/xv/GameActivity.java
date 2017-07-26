@@ -2,6 +2,7 @@ package com.sike.xv;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
 
@@ -26,6 +27,8 @@ public class GameActivity extends AppCompatActivity {
         width = (int)(pixel*density);
         height = (int)(pixel*density);
         absoluteLayout = (AbsoluteLayout) findViewById(R.id.absoluteLayout);
+        Log.d("AbsoluteLayout" ,"height= "+String.valueOf(absoluteLayout.getLayoutParams().height));
+        Log.d("AbsoluteLayout" ,"width= "+String.valueOf(absoluteLayout.getLayoutParams().width));
         addButtons();
 
     }
@@ -34,7 +37,10 @@ public class GameActivity extends AppCompatActivity {
         for(int i = 0; i < 4;i++){
             for(int j = 0; j < 4; j++){
                 Button btnTag = new Button(absoluteLayout.getContext());
+                int x = (int)(coorX[j]*density);
+                int y = (int)(coorY[i]*density);
                 btnTag.setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int)(coorX[j]*density), (int)(coorY[i]*density)));
+                Log.d("AbsoluteLayout", "i="+i+" j="+j+" x="+String.valueOf(x)+" y="+String.valueOf(y)+" Size="+String.valueOf(width));
                 btnTag.setText("1");
                 absoluteLayout.addView(btnTag);
             }
