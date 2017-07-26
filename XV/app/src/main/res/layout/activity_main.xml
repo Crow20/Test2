@@ -21,28 +21,28 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/start"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:text="Начать игру" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/stat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:text="Статистика" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/pref"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:text="Настройки" />
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/exit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
