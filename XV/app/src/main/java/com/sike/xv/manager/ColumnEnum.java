@@ -5,7 +5,7 @@ package com.sike.xv.manager;
  */
 
 public enum ColumnEnum {
-    FIRST_COLUMN(0), SECOND_COLUMN(75), THIRD_COLUMN(150), FOURTH_COLUMN(225);
+    FIRST_COLUMN(0), SECOND_COLUMN(70), THIRD_COLUMN(140), FOURTH_COLUMN(210);
 
     private int value;
 

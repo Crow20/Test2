@@ -85,8 +85,8 @@
 
     <AbsoluteLayout
         android:id="@+id/absoluteLayout"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="285dp"
+        android:layout_height="276dp"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -96,9 +96,65 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.265"
-        app:layout_constraintHorizontal_bias="0.494">
+        app:layout_constraintVertical_bias="0.291"
+        app:layout_constraintHorizontal_bias="0.506">
 
+        <Button
+            android:id="@+id/four"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_x="70dp"
+            android:layout_y="67dp"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/one"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_x="70dp"
+            android:layout_y="0dp"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/three"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_x="210dp"
+            android:layout_y="0dp"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/two"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_x="141dp"
+            android:layout_y="68dp"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/six"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_x="212dp"
+            android:layout_y="137dp"
+            android:elevation="0dp"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/five"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_x="70dp"
+            android:layout_y="141dp"
+            android:text="Button" />
+
+        <Button
+            android:id="@+id/seven"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_x="141dp"
+            android:layout_y="201dp"
+            android:text="Button" />
     </AbsoluteLayout>
 
 </android.support.constraint.ConstraintLayout>
