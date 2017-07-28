@@ -49,7 +49,7 @@ public class GameAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (view == null) {
-            view = lInflater.inflate(R.layout.item, parent, false);
+            //view = lInflater.inflate(R.layout.item, parent, false);
         }
         return view;
     }

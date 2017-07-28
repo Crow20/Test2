@@ -3,6 +3,7 @@ package com.sike.xv;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button continuegame;
     ArrayList<Plate> plates;
     GameManager manager;
+    Toolbar toolbar;
 
 
     @Override
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         stat = (Button) findViewById(R.id.stat);
         pref = (Button) findViewById(R.id.pref);
         exit = (Button) findViewById(R.id.exit);
-        continuegame = (Button) findViewById(R.id.continuegame);
+        //continuegame = (Button) findViewById(R.id.continuegame);
 
         exit.setOnClickListener(this);
         if(continuegame != null){
@@ -42,6 +44,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pref.setOnClickListener(this);
         start.setOnClickListener(this);
         stat.setOnClickListener(this);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         manager = new GameManager();
     }
@@ -61,8 +67,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.exit:
                 this.finish();
                 break;
-            case R.id.continuegame:
-                break;
+//            case R.id.continuegame:
+//                break;
         }
     }
 
