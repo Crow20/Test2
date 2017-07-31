@@ -4,15 +4,10 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.sike.xv.engine.Plate;
 import com.sike.xv.manager.GameManager;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -21,7 +16,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button pref;
     Button exit;
     Button continuegame;
-    ArrayList<Plate> plates;
     GameManager manager;
     Toolbar toolbar;
 
@@ -49,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        manager = new GameManager();
+
     }
 
     @Override

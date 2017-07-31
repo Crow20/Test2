@@ -162,62 +162,6 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar_game"
         app:layout_constraintVertical_bias="0.369">
 
-        <Button
-            android:id="@+id/four"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_x="70dp"
-            android:layout_y="67dp"
-            android:text="4" />
-
-        <Button
-            android:id="@+id/one"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_x="70dp"
-            android:layout_y="0dp"
-            android:text="1" />
-
-        <Button
-            android:id="@+id/two"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_x="141dp"
-            android:layout_y="67dp"
-            android:text="2" />
-
-        <Button
-            android:id="@+id/six"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_x="212dp"
-            android:layout_y="137dp"
-            android:elevation="0dp"
-            android:text="6" />
-
-        <Button
-            android:id="@+id/five"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_x="70dp"
-            android:layout_y="141dp"
-            android:text="5" />
-
-        <Button
-            android:id="@+id/seven"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_x="141dp"
-            android:layout_y="201dp"
-            android:text="7" />
-
-        <Button
-            android:id="@+id/three"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_x="210dp"
-            android:layout_y="0dp"
-            android:text="3" />
     </AbsoluteLayout>
 
 </android.support.constraint.ConstraintLayout>

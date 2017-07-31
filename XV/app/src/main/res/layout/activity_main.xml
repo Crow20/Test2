@@ -39,6 +39,12 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <Button
+            android:id="@+id/continuegame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Продолжить игру" />
+
+        <Button
             android:id="@+id/start"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
