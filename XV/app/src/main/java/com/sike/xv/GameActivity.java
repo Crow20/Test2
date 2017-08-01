@@ -79,6 +79,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        manager.setActive(v.getX(), v.getY());
 //        Toast.makeText(getApplicationContext(), "Кнопка нажата", Toast.LENGTH_SHORT).show();
 //        manager.buttonAnimator(v, v.getX(), coorX[3]*density, v.getY(), coorY[3]*density, Direction.LEFT);
     }

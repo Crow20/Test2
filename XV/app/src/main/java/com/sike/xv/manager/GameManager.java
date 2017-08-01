@@ -97,12 +97,30 @@ public class GameManager {
     public int getActive(){
        return 1;
     }
-    public void setActive(int x, int y){
-//        if(arrPlates[y][x] == 0 && y != 0 && x != 0){
+
+
+    public void setActive(float x, float y, float density){
+        float curX = x/density;
+        float curY = y/density;
+        int mtX = 0;
+        int mtY = 0;
+        for(int i = 0;j < 4; i++){
+            for (int j = 0; j < 4; j++){
+                if(coorX[j] != curX && coorY[i] != curY){
+                    j++;
+                }else{
+                    mtY = i;
+                    mtX = j;
+                    break;
+                }
+            }
+
+        }
+//        if(arrPlates[y][x] == 0 && (y >= 0 && y <= 3 || x >= 0 && x <=3)){
 //            arrPlates[y][x] = 1;
 //            arrPlates[y-1][x] = 0;
 //            arrPlates[y][x-1] = 0;
-//        }else
+//        }
     }
 
 
