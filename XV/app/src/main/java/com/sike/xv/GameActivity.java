@@ -1,27 +1,18 @@
 package com.sike.xv;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
 import android.widget.AbsoluteLayout;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.sike.xv.engine.Plate;
 import com.sike.xv.manager.ColumnEnum;
+import com.sike.xv.manager.Direction;
 import com.sike.xv.manager.GameManager;
 import com.sike.xv.manager.RowEnum;
-
-import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
 
@@ -34,10 +25,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected int[] coorX = {ColumnEnum.FIRST_COLUMN.getValue(), ColumnEnum.SECOND_COLUMN.getValue(), ColumnEnum.THIRD_COLUMN.getValue(), ColumnEnum.FOURTH_COLUMN.getValue()};
     protected int[] coorY = {RowEnum.FIRST_ROW.getValue(), RowEnum.SECOND_ROW.getValue(), RowEnum.THIRD_ROW.getValue(), RowEnum.FOURTH_ROW.getValue()};
     protected static float density;
-    protected boolean isGame = true;
     Toolbar toolbar;
-    GameManager manager;
+    static GameManager manager;
     ArrayList<Plate> plates = new ArrayList<>();
+
 
 
 
@@ -54,15 +45,19 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         toolbar = (Toolbar) findViewById(R.id.toolbar_game);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         manager = new GameManager();
-        manager.setFields(this,manager.getPlatesNum(), isGame);
-        if(isGame) addButtons();
-
+        plates = manager.setFields(this, manager.getPlatesNum());
+        manager.saveGameState(plates);
+        manager.setGame(true);
+        addButtons();
     }
 
     void addButtons() {
-        plates = manager.getPlates();
+        if(manager.isGame()){
+            plates = manager.getPlates();
+        }else {
+            plates = manager.getCurstate();
+        }
         int i = 0;
         int j = 0;
         for(Plate obj:plates){
@@ -76,15 +71,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     i++;
                     j = 0;
                 }
+            }else{
+                manager.setActive(obj.getX(), obj.getY());
             }
         }
     }
 
     @Override
     public void onClick(View v) {
-        Toast.makeText(getApplicationContext(), "Кнопка нажата", Toast.LENGTH_SHORT).show();
-        
+//        Toast.makeText(getApplicationContext(), "Кнопка нажата", Toast.LENGTH_SHORT).show();
+//        manager.buttonAnimator(v, v.getX(), coorX[3]*density, v.getY(), coorY[3]*density, Direction.LEFT);
     }
+
+
+
+
 }
 
 

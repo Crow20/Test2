@@ -16,8 +16,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button pref;
     Button exit;
     Button continuegame;
-    GameManager manager;
-    Toolbar toolbar;
+
 
 
     @Override
@@ -29,10 +28,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         stat = (Button) findViewById(R.id.stat);
         pref = (Button) findViewById(R.id.pref);
         exit = (Button) findViewById(R.id.exit);
-        //continuegame = (Button) findViewById(R.id.continuegame);
+        continuegame = (Button) findViewById(R.id.continuegame);
 
         exit.setOnClickListener(this);
-        if(continuegame != null){
+        if(continuegame.isEnabled()){
             continuegame.setOnClickListener(this);
         }
         pref.setOnClickListener(this);
@@ -61,8 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.exit:
                 this.finish();
                 break;
-//            case R.id.continuegame:
-//                break;
+            case R.id.continuegame:
+                break;
         }
     }
 

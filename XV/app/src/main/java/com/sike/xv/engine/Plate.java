@@ -3,6 +3,8 @@ package com.sike.xv.engine;
 import android.content.Context;
 import android.widget.Button;
 
+import com.sike.xv.manager.Direction;
+
 /**
  * Created by agritsenko on 31.07.2017.
  */
@@ -13,7 +15,8 @@ public class Plate {
     int x;
     int y;
     int number;
-    boolean exist = true;
+    boolean active = true;
+    Direction dir;
 
     public Plate(Context ctx, int x, int y, int number){
         this.number = number;
@@ -38,11 +41,19 @@ public class Plate {
         return number;
     }
 
-    public boolean isExist() {
-        return exist;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setExist(boolean exist) {
-        this.exist = exist;
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Direction getDir() {
+        return dir;
+    }
+
+    public void setDir(Direction dir) {
+        this.dir = dir;
     }
 }
