@@ -5,5 +5,5 @@ package com.sike.xv.manager;
  */
 
 public enum Direction {
-    UP, DOWN, LEFT, RIGHT
+    UP, DOWN, LEFT, RIGHT, NOTMOVE
 }

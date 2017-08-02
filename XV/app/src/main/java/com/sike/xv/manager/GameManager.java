@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.sike.xv.engine.Plate;
 
@@ -25,11 +24,12 @@ public class GameManager {
     private boolean isGame = false;
     private static int [][] arrPlates = {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 0}};
     int [][] platesNum = new int[4][4];
-    protected Direction dir;
+    protected Direction dir = Direction.NOTMOVE;
     private int x0;
     private int y0;
     private int x;
     private int y;
+    protected int countSteps = 0;
 
     protected int [] fieldArray = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,  13, 14, 15, 0};
     int j = 1;
@@ -99,23 +99,19 @@ public class GameManager {
         setX0(x0);
         setY(y);
         setY0(y0);
-        if(x0 < x){
+        dir = Direction.NOTMOVE;
+        if (x0 < x && (x - x0 == 1)) {
             dir = Direction.RIGHT;
-        }else if(x0 > x){
+        } else if (x0 > x&& (x0 - x == 1)) {
             dir = Direction.LEFT;
-        }else if(x0 == x){
-            if(y0 < y){
-                dir = Direction.UP;
-            }else {
+        } else if (x0 == x) {
+            if (y0 < y && (Math.abs(y-y0) == 1)) {
                 dir = Direction.DOWN;
+            } else if(Math.abs(y-y0) == 1){
+                dir = Direction.UP;
             }
         }
     }
-
-    public int getActive(){
-       return 1;
-    }
-
 
     public boolean move(float flX, float flY, float density) {
 
@@ -140,8 +136,7 @@ public class GameManager {
         for(int i = 0; i < 4; i++){
             if(i != 3){
                 if(tmp >= coorX[i] && tmp <= coorX[i+1]){
-                    if((coorX[i+1]+coorX[i])/2 < y) {
-                        Log.d("Move", " y=" + String.valueOf(i+1));
+                    if((coorX[i+1]+coorX[i])/2 < x) {
                         x = i+1;
                     }
                 }
@@ -154,7 +149,6 @@ public class GameManager {
             if(j != 3){
                 if(tmp >= coorY[j] && tmp <= coorY[j+1]){
                     if((coorY[j+1]+coorY[j])/2 < y) {
-                        Log.d("Move", " y=" + String.valueOf(j+1));
                         y = j+1;
                     }
                 }
@@ -165,37 +159,41 @@ public class GameManager {
 
         setDirection(x, y, px0, py0);
         // Когда нашли делаем ход, если он возможен
-        if (px0 == x || py0 == y) {
-            if (!(px0 == x && py0 == y)) {
-                if (px0 == x) {
-                    if (py0 < y) {
-                        for (int i = py0 + 1; i <= y; i++) {
-                            arrPlates[x][i - 1] = arrPlates[x][i];
+        if(dir != Direction.NOTMOVE){
+                if (px0 == x || py0 == y ) {
+                    if (!(px0 == x && py0 == y)) {
+                        if (px0 == x) {
+                            if (py0 < y) {
+                                for (int i = py0 + 1; i <= y; i++) {
+                                    arrPlates[x][i - 1] = arrPlates[x][i];
+                                }
+                            } else {
+                                for (int i = py0; i > y; i--) {
+                                    arrPlates[x][i] = arrPlates[x][i - 1];
+                                }
+                            }
                         }
+                        if (py0 == y) {
+                            if (px0 < x) {
+                                for (int i = px0 + 1; i <= x; i++) {
+                                    arrPlates[i - 1][y] = arrPlates[i][y];
+                                }
+                            } else {
+                                for (int i = px0; i > x; i--) {
+                                    arrPlates[i][y] = arrPlates[i - 1][y];
+                                }
+                            }
+                        }
+                        arrPlates[x][y] = 0;
+                        res = true;
                     } else {
-                        for (int i = py0; i > y; i--) {
-                            arrPlates[x][i] = arrPlates[x][i - 1];
-                        }
+                        res = false;
                     }
                 }
-                if (py0 == y) {
-                    if (px0 < x) {
-                        for (int i = px0 + 1; i <= x; i++) {
-                            arrPlates[i - 1][y] = arrPlates[i][y];
-                        }
-                    } else {
-                        for (int i = px0; i > x; i--) {
-                            arrPlates[i][y] = arrPlates[i - 1][y];
-                        }
-                    }
-                }
-                arrPlates[x][y] = 0;
-                res = true;
-            } else {
-                res = false;
-            }
         }
         // Возвращаем результат
+        Log.d("Move", " Move="+String.valueOf(res));
+        if(res)countSteps++;
         return res;
     }
 
@@ -213,15 +211,38 @@ public class GameManager {
             case RIGHT:
                 ObjectAnimator.ofFloat(v, View.X, curX, endX).start();
                 break;
+            case NOTMOVE:
+                break;
         }
 
         //ObjectAnimator.ofFloat(v, View.X, v.getX(), 140*density).start();
     }
 
+    public boolean checkGameOver()
+    {
+        int a = 1;
+        boolean res = true;
+        for (int i = 0; i <4; i++)
+            for (int j = 0; j<4; j++)
+            {
+                if (i==3&&j==3){a=0;}
+                if (arrPlates[j][i]!=a)
+                {
+                    res=false;
+                    break;
+                }
+                a++;
+            }
+        return res;
+    }
 
     public void saveGameState(ArrayList<Plate> startState){
         curstate = new ArrayList<>();
         curstate = startState;
+    }
+
+    public int getCountSteps() {
+        return countSteps;
     }
 
     public ArrayList<Plate> getCurstate() {
@@ -236,16 +257,8 @@ public class GameManager {
         isGame = game;
     }
 
-    public int getX0() {
-        return x0;
-    }
-
     public void setX0(int x0) {
         this.x0 = x0;
-    }
-
-    public int getY0() {
-        return y0;
     }
 
     public void setY0(int y0) {

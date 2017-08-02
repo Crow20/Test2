@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -16,8 +17,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button pref;
     Button exit;
     Button continuegame;
-
-
+    final String TAG = "States";
+    private static boolean game = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +43,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-
+        //Log.d(TAG, "MainActivity: onCreate()");
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.start:
+                game = true;
                 startActivity(new Intent("android.intent.action.START"));
                 break;
             case R.id.stat:
@@ -64,5 +66,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+    @Override
+    protected void onRestart() {
+        if(game){
+            continuegame.setEnabled(true);
+            continuegame.setVisibility(View.VISIBLE);
+        }
+        super.onRestart();
+       // Log.d(TAG, "MainActivity: onRestart()");
+    }
+
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        Log.d(TAG, "MainActivity: onStart()");
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        Log.d(TAG, "MainActivity: onResume()");
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Log.d(TAG, "MainActivity: onPause()");
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        Log.d(TAG, "MainActivity: onStop()");
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        Log.d(TAG, "MainActivity: onDestroy()");
+//    }
 
 }
