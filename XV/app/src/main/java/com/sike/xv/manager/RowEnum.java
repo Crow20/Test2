@@ -8,7 +8,7 @@ import android.inputmethodservice.Keyboard;
 
 public enum RowEnum {
 
-    FIRST_ROW(0), SECOND_ROW(67), THIRD_ROW(134), FOURTH_ROW(201);
+    FIRST_ROW(0), SECOND_ROW(87), THIRD_ROW(174), FOURTH_ROW(261);
 
     private int value;
 

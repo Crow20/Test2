@@ -21,7 +21,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     AbsoluteLayout absoluteLayout;
     int width = 0;
     int height = 0;
-    int pixel = 75;
+    int pixel = 87;
     protected int[] coorX = {ColumnEnum.FIRST_COLUMN.getValue(), ColumnEnum.SECOND_COLUMN.getValue(), ColumnEnum.THIRD_COLUMN.getValue(), ColumnEnum.FOURTH_COLUMN.getValue()};
     protected int[] coorY = {RowEnum.FIRST_ROW.getValue(), RowEnum.SECOND_ROW.getValue(), RowEnum.THIRD_ROW.getValue(), RowEnum.FOURTH_ROW.getValue()};
     protected static float density;
@@ -71,23 +71,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     i++;
                     j = 0;
                 }
-            }else{
-                manager.setActive(obj.getX(), obj.getY());
             }
         }
     }
 
     @Override
     public void onClick(View v) {
-        manager.setActive(v.getX(), v.getY());
-//        Toast.makeText(getApplicationContext(), "Кнопка нажата", Toast.LENGTH_SHORT).show();
-//        manager.buttonAnimator(v, v.getX(), coorX[3]*density, v.getY(), coorY[3]*density, Direction.LEFT);
+        if(manager.move(v.getX(), v.getY(), density))
+            manager.buttonAnimator(v, v.getX(), coorX[manager.getX()]*density, v.getY(), coorY[manager.getY()]*density, manager.getDir());
+        }
+
     }
 
 
 
 
-}
+
 
 
 

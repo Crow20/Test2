@@ -2,7 +2,9 @@ package com.sike.xv.manager;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.sike.xv.engine.Plate;
 
@@ -23,8 +25,11 @@ public class GameManager {
     private boolean isGame = false;
     private static int [][] arrPlates = {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 0}};
     int [][] platesNum = new int[4][4];
-    float aX = 0;
-    float aY = 0;
+    protected Direction dir;
+    private int x0;
+    private int y0;
+    private int x;
+    private int y;
 
     protected int [] fieldArray = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,  13, 14, 15, 0};
     int j = 1;
@@ -89,9 +94,22 @@ public class GameManager {
         return plates;
     }
 
-    public Direction setDirection(){
-        //if()
-        return Direction.UP;
+    public void setDirection(int x0, int y0, int x, int y){
+        setX(x);
+        setX0(x0);
+        setY(y);
+        setY0(y0);
+        if(x0 < x){
+            dir = Direction.RIGHT;
+        }else if(x0 > x){
+            dir = Direction.LEFT;
+        }else if(x0 == x){
+            if(y0 < y){
+                dir = Direction.UP;
+            }else {
+                dir = Direction.DOWN;
+            }
+        }
     }
 
     public int getActive(){
@@ -99,35 +117,92 @@ public class GameManager {
     }
 
 
-    public void setActive(float x, float y, float density){
-        float curX = x/density;
-        float curY = y/density;
-        int mtX = 0;
-        int mtY = 0;
-        for(int i = 0;j < 4; i++){
-            for (int j = 0; j < 4; j++){
-                if(coorX[j] != curX && coorY[i] != curY){
-                    j++;
-                }else{
-                    mtY = i;
-                    mtX = j;
-                    break;
+    public boolean move(float flX, float flY, float density) {
+
+        boolean res = false;
+        // Координаты пустой клетки
+        int px0 = -1, py0 = -1;
+
+        // Ищем пустую клетку на поле
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (arrPlates[i][j] == 0) {
+                    px0 = i;
+                    py0 = j;
                 }
             }
-
         }
-//        if(arrPlates[y][x] == 0 && (y >= 0 && y <= 3 || x >= 0 && x <=3)){
-//            arrPlates[y][x] = 1;
-//            arrPlates[y-1][x] = 0;
-//            arrPlates[y][x-1] = 0;
-//        }
-    }
 
+        int x = (int) (flX/density);
+        int y = (int) (flY/density);
+
+        int tmp = x;
+        for(int i = 0; i < 4; i++){
+            if(i != 3){
+                if(tmp >= coorX[i] && tmp <= coorX[i+1]){
+                    if((coorX[i+1]+coorX[i])/2 < y) {
+                        Log.d("Move", " y=" + String.valueOf(i+1));
+                        x = i+1;
+                    }
+                }
+            }else if(x == tmp && tmp != 0) {
+                x = 3;
+            }
+        }
+        tmp = y;
+        for(int j = 0; j < 4; j++){
+            if(j != 3){
+                if(tmp >= coorY[j] && tmp <= coorY[j+1]){
+                    if((coorY[j+1]+coorY[j])/2 < y) {
+                        Log.d("Move", " y=" + String.valueOf(j+1));
+                        y = j+1;
+                    }
+                }
+            }else if(y == tmp && tmp != 0) {
+                y = 3;
+            }
+        }
+
+        setDirection(x, y, px0, py0);
+        // Когда нашли делаем ход, если он возможен
+        if (px0 == x || py0 == y) {
+            if (!(px0 == x && py0 == y)) {
+                if (px0 == x) {
+                    if (py0 < y) {
+                        for (int i = py0 + 1; i <= y; i++) {
+                            arrPlates[x][i - 1] = arrPlates[x][i];
+                        }
+                    } else {
+                        for (int i = py0; i > y; i--) {
+                            arrPlates[x][i] = arrPlates[x][i - 1];
+                        }
+                    }
+                }
+                if (py0 == y) {
+                    if (px0 < x) {
+                        for (int i = px0 + 1; i <= x; i++) {
+                            arrPlates[i - 1][y] = arrPlates[i][y];
+                        }
+                    } else {
+                        for (int i = px0; i > x; i--) {
+                            arrPlates[i][y] = arrPlates[i - 1][y];
+                        }
+                    }
+                }
+                arrPlates[x][y] = 0;
+                res = true;
+            } else {
+                res = false;
+            }
+        }
+        // Возвращаем результат
+        return res;
+    }
 
     public void buttonAnimator(View v, float curX, float endX, float curY, float endY, Direction dir){
         switch (dir){
             case UP:
-                ObjectAnimator.ofFloat(v, View.Y, curY, endY+v.getHeight()).start();
+                ObjectAnimator.ofFloat(v, View.Y, curY, endY).start();
                 break;
             case DOWN:
                 ObjectAnimator.ofFloat(v, View.Y, curY, endY).start();
@@ -136,7 +211,7 @@ public class GameManager {
                 ObjectAnimator.ofFloat(v, View.X, curX, endX).start();
                 break;
             case RIGHT:
-                ObjectAnimator.ofFloat(v, View.X, curX, endX+v.getWidth()).start();
+                ObjectAnimator.ofFloat(v, View.X, curX, endX).start();
                 break;
         }
 
@@ -159,5 +234,41 @@ public class GameManager {
 
     public void setGame(boolean game) {
         isGame = game;
+    }
+
+    public int getX0() {
+        return x0;
+    }
+
+    public void setX0(int x0) {
+        this.x0 = x0;
+    }
+
+    public int getY0() {
+        return y0;
+    }
+
+    public void setY0(int y0) {
+        this.y0 = y0;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public Direction getDir() {
+        return dir;
     }
 }
