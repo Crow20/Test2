@@ -2,6 +2,7 @@ package com.sike.xv.manager;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
@@ -45,6 +46,7 @@ public class GameManager {
             }
         }
         fieldRandomizer();
+
     }
 
     private int[][] fieldRandomizer(){

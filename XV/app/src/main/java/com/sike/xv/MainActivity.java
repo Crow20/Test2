@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 this.finish();
                 break;
             case R.id.continuegame:
+                onNewIntent(new Intent("android.intent.action.START"));
                 break;
         }
     }
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(game){
             continuegame.setEnabled(true);
             continuegame.setVisibility(View.VISIBLE);
+            continuegame.setOnClickListener(this);
         }
         super.onRestart();
        // Log.d(TAG, "MainActivity: onRestart()");
