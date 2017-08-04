@@ -22,9 +22,6 @@ import com.sike.xv.manager.ColumnEnum;
 import com.sike.xv.manager.GameManager;
 import com.sike.xv.manager.RowEnum;
 
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -43,12 +40,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Button pause;
     TimerTask timerTask;
     static GameManager manager;
-    ArrayList<Plate> plates = new ArrayList<>();
+    //ArrayList<Plate> plates = new ArrayList<>();
+    private Plate[][] plates;
     final String TAG = "States";
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
     int Seconds, Minutes, MilliSeconds ;
-    int tmpSeconds, tmpMinutes;
     static boolean timeStarted = true;
     static boolean timerStopped = false;
     final int DIALOG_EXIT = 1;
@@ -74,9 +71,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         manager = new GameManager();
+        //plates = manager.setTestFields(this, manager.getPlatesNum());
         plates = manager.setFields(this, manager.getPlatesNum());
-        manager.saveGameState(plates);
-        manager.setGame(true);
+        //manager.saveGameState(plates);
+        //manager.setGame(true);
         addButtons();
         handler = new Handler();
         timerTask = new TimerTask();
@@ -84,27 +82,19 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     void addButtons() {
-        if(manager.isGame()){
-            plates = manager.getPlates();
-        }else {
-            plates = manager.getCurstate();
-        }
-        int i = 0;
-        int j = 0;
-        for(Plate obj:plates){
-            if(!(obj.getNumber() == 0)){
-                obj.getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int)(coorX[j] * density), (int) (coorY[i] * density)));
-                obj.getBtn().setText(String.valueOf(obj.getNumber()));
-                obj.getBtn().setOnClickListener(this);
-                absoluteLayout.addView(obj.getBtn());
-                j++;
-                if(j > 3 && i != 3){
-                    i++;
-                    j = 0;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int)(coorX[j] * density), (int) (coorY[i] * density)));
+                    plates[i][j].getBtn().setText(String.valueOf(plates[i][j].getNumber()));
+                    plates[i][j].getBtn().setOnClickListener(this);
+                    //absoluteLayout.addView(plates[i][j].getBtn());
+                    if(plates[i][j].getNumber() != 0){
+                        absoluteLayout.addView(plates[i][j].getBtn());
+                    }
                 }
             }
         }
-    }
+
 
     @Override
     public void onClick(View v) {
@@ -143,6 +133,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(getApplicationContext(), "Pause", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.restart:
+                //manager.setToDefault();
                 recreate();
                 //Toast.makeText(getApplicationContext(), "Restart", Toast.LENGTH_SHORT).show();
                 break;

@@ -2,7 +2,6 @@ package com.sike.xv.manager;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
@@ -17,14 +16,15 @@ import java.util.Collections;
 
 public class GameManager {
 
-    protected ArrayList<ArrayList<Integer>> tmpList = new ArrayList<>(4);
-    protected ArrayList<Plate> plates = new ArrayList<>();
+    protected Plate[][] plates = new Plate[4][4];
     private ArrayList<Plate> curstate;
+    protected ArrayList<Plate> tmpList = new ArrayList<>();
     protected int[] coorX = {ColumnEnum.FIRST_COLUMN.getValue(), ColumnEnum.SECOND_COLUMN.getValue(), ColumnEnum.THIRD_COLUMN.getValue(), ColumnEnum.FOURTH_COLUMN.getValue()};
     protected int[] coorY = {RowEnum.FIRST_ROW.getValue(), RowEnum.SECOND_ROW.getValue(), RowEnum.THIRD_ROW.getValue(), RowEnum.FOURTH_ROW.getValue()};
     private boolean isGame = false;
-    private static int [][] arrPlates = {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 0}};
-    int [][] platesNum = new int[4][4];
+    protected int [][] arrPlates = new int[4][4];
+    private static int [][] defPlates = {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 0}};
+    int [][] platesNum = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 0, 12}, {13, 14, 15, 11}};
     protected Direction dir = Direction.NOTMOVE;
     private int x0;
     private int y0;
@@ -32,59 +32,41 @@ public class GameManager {
     private int y;
     protected int countSteps = 0;
 
-    protected int [] fieldArray = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,  13, 14, 15, 0};
-    int j = 1;
 
-    public GameManager(){
-        tmpList.add(new ArrayList<Integer>(4));
-        tmpList.add(new ArrayList<Integer>(4));
-        tmpList.add(new ArrayList<Integer>(4));
-        tmpList.add(new ArrayList<Integer>(4));
-        for(ArrayList<Integer> tmp:tmpList){
-            for(int i = 0; i < 4 ; i++, j++){
-                tmp.add(i,fieldArray[j-1]);
+    public Plate[][] setTestFields(Context ctx, int [][] numbers){
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                plates[i][j] = new Plate(ctx, j, i, numbers[i][j]);
+                arrPlates[i][j] = plates[i][j].getNumber();
             }
         }
-        fieldRandomizer();
-
+        return plates;
     }
 
-    private int[][] fieldRandomizer(){
-        ArrayList<Integer> cont= new ArrayList<>();
-        for (int i = 0;i < tmpList.size(); i++){
-            if(!(cont.isEmpty())){
-                cont.addAll(cont.size(), tmpList.get(i));
-            }else {
-                cont = tmpList.get(i);
+    public Plate[][] setFields(Context ctx, int [][] numbers){
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                plates[i][j] = new Plate(ctx, j, i, numbers[i][j]);
             }
         }
-        int k = 0;
-        for(int m = 0; m < 4;m++){
-            for(int n = 0; n < 4; n++, k++){
-                platesNum[m][n] = cont.get(k);
+        for(int i = 0; i < 4; i++){
+          for(int j = 0; j < 4; j++){
+              tmpList.add(plates[i][j]);
+          }
+        }
+        Collections.shuffle(tmpList);
+        int k =0;
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                plates[i][j] = tmpList.get(k);
+                k++;
             }
         }
-        return platesNum;
-    }
-
-    public ArrayList<Plate> setFields(Context ctx, int [][] numbers){
-
-        int m = 0;
-        int n = 0;
-        for (; plates.size() < 16 && m != 4; m++) {
-            if (plates.isEmpty()) {
-                for (int j = 0; j < 4; j++, n++) {
-                    plates.add(j, new Plate(ctx, n, m, numbers[m][n]));
-                }
-                n = 0;
-            } else {
-                for (int j = plates.size(); j < 16 && n != 4; j++, n++) {
-                    plates.add(j, new Plate(ctx, n, m, numbers[m][n]));
-                }
-                n = 0;
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                arrPlates[i][j] = plates[i][j].getNumber();
             }
         }
-        Collections.shuffle(plates);
         return plates;
     }
 
@@ -92,27 +74,13 @@ public class GameManager {
         return platesNum;
     }
 
-    public ArrayList<Plate> getPlates() {
+    public Plate[][] getPlates() {
         return plates;
     }
 
     public void setDirection(int x0, int y0, int x, int y){
-        setX(x);
-        setX0(x0);
-        setY(y);
-        setY0(y0);
-        dir = Direction.NOTMOVE;
-        if (x0 < x && (x - x0 == 1)) {
-            dir = Direction.RIGHT;
-        } else if (x0 > x&& (x0 - x == 1)) {
-            dir = Direction.LEFT;
-        } else if (x0 == x) {
-            if (y0 < y && (Math.abs(y-y0) == 1)) {
-                dir = Direction.DOWN;
-            } else if(Math.abs(y-y0) == 1){
-                dir = Direction.UP;
-            }
-        }
+
+
     }
 
     public boolean move(float flX, float flY, float density) {
@@ -120,13 +88,13 @@ public class GameManager {
         boolean res = false;
         // Координаты пустой клетки
         int px0 = -1, py0 = -1;
-
+        int tmpPlate;
         // Ищем пустую клетку на поле
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (arrPlates[i][j] == 0) {
-                    px0 = i;
-                    py0 = j;
+                    px0 = j;
+                    py0 = i;
                 }
             }
         }
@@ -140,6 +108,10 @@ public class GameManager {
                 if(tmp >= coorX[i] && tmp <= coorX[i+1]){
                     if((coorX[i+1]+coorX[i])/2 < x) {
                         x = i+1;
+
+                    }else {
+                        x = i;
+
                     }
                 }
             }else if(x == tmp && tmp != 0) {
@@ -147,51 +119,63 @@ public class GameManager {
             }
         }
         tmp = y;
-        for(int j = 0; j < 4; j++){
-            if(j != 3){
-                if(tmp >= coorY[j] && tmp <= coorY[j+1]){
-                    if((coorY[j+1]+coorY[j])/2 < y) {
-                        y = j+1;
+        for(int j = 0; j < 4; j++) {
+            if (j != 3) {
+                if (tmp >= coorY[j] && tmp <= coorY[j + 1]) {
+                    if ((coorY[j + 1] + coorY[j]) / 2 < y) {
+                        y = j + 1;
+
+                    } else {
+                        y = j;
+
                     }
                 }
-            }else if(y == tmp && tmp != 0) {
+            } else if (y == tmp && tmp != 0) {
                 y = 3;
             }
         }
-
-        setDirection(x, y, px0, py0);
-        // Когда нашли делаем ход, если он возможен
-        if(dir != Direction.NOTMOVE){
-                if (px0 == x || py0 == y ) {
-                    if (!(px0 == x && py0 == y)) {
-                        if (px0 == x) {
-                            if (py0 < y) {
-                                for (int i = py0 + 1; i <= y; i++) {
-                                    arrPlates[x][i - 1] = arrPlates[x][i];
-                                }
-                            } else {
-                                for (int i = py0; i > y; i--) {
-                                    arrPlates[x][i] = arrPlates[x][i - 1];
-                                }
-                            }
+        //tmpPlate[x][y]
+        if (px0 == x || py0 == y) {
+            if (!(px0 == x && py0 == y)) {
+                if (px0 == x) {
+                    if (py0 < y) {
+                        for (int i = py0 + 1; i <= y; i++) {
+                            arrPlates[x][i - 1] = arrPlates[x][i];
                         }
-                        if (py0 == y) {
-                            if (px0 < x) {
-                                for (int i = px0 + 1; i <= x; i++) {
-                                    arrPlates[i - 1][y] = arrPlates[i][y];
-                                }
-                            } else {
-                                for (int i = px0; i > x; i--) {
-                                    arrPlates[i][y] = arrPlates[i - 1][y];
-                                }
-                            }
-                        }
-                        arrPlates[x][y] = 0;
-                        res = true;
                     } else {
-                        res = false;
+                        for (int i = py0; i > y; i--) {
+                            arrPlates[x][i] = arrPlates[x][i - 1];
+                        }
                     }
                 }
+                if (py0 == y) {
+                    if (px0 < x) {
+                        for (int i = px0 + 1; i <= x; i++) {
+                            arrPlates[i - 1][y] = arrPlates[i][y];
+                        }
+                    } else {
+                        for (int i = px0; i > x; i--) {
+                            arrPlates[i][y] = arrPlates[i - 1][y];
+                        }
+                    }
+                }
+                arrPlates[x][y] = 0;
+                //проверять наоборот икс и игрек
+                if (px0 < x && (x - px0 == 1)) {
+                    dir = Direction.LEFT;
+                } else if (px0 > x&& (px0 - x == 1)) {
+                    dir = Direction.RIGHT;
+                } else if (px0 == x) {
+                    if (py0 < y && (Math.abs(y-py0) == 1)) {
+                        dir = Direction.DOWN;
+                    } else if(Math.abs(y-py0) == 1){
+                        dir = Direction.UP;
+                    }
+                }
+                res = true;
+            } else {
+                res = false;
+            }
         }
         // Возвращаем результат
         Log.d("Move", " Move="+String.valueOf(res));
@@ -228,7 +212,7 @@ public class GameManager {
             for (int j = 0; j<4; j++)
             {
                 if (i==3&&j==3){a=0;}
-                if (arrPlates[j][i]!=a)
+                if (this.arrPlates[j][i]!=a)
                 {
                     res=false;
                     break;
@@ -247,9 +231,9 @@ public class GameManager {
         return countSteps;
     }
 
-    public ArrayList<Plate> getCurstate() {
-        return curstate;
-    }
+//    public ArrayList<Plate> getCurstate() {
+//        return curstate;
+//    }
 
     public boolean isGame() {
         return isGame;
