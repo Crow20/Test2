@@ -2,7 +2,6 @@ package com.sike.xv;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -38,16 +37,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     ImageView pausePic;
     Button menuGame;
     Button pause;
-    TimerTask timerTask;
+
     static GameManager manager;
     //ArrayList<Plate> plates = new ArrayList<>();
     private Plate[][] plates;
-    final String TAG = "States";
-    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
+    final String TAG = "Timer";
+    long MillisecondTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
     int Seconds, Minutes, MilliSeconds ;
-    static boolean timeStarted = true;
-    static boolean timerStopped = false;
+    private long mTime = 0L;
+    static boolean gamePaused ,gameStarted ,play = false;
+    int inst = -1;
     final int DIALOG_EXIT = 1;
 
     @Override
@@ -77,7 +77,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //manager.setGame(true);
         addButtons();
         handler = new Handler();
-        timerTask = new TimerTask();
         Log.d(TAG, "GameActivity: onCreate()");
     }
 
@@ -86,6 +85,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 for (int j = 0; j < 4; j++) {
                     plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int)(coorX[j] * density), (int) (coorY[i] * density)));
                     plates[i][j].getBtn().setText(String.valueOf(plates[i][j].getNumber()));
+                    plates[i][j].getBtn().setTextSize(9*density);
+                    //plates[i][j].getBtn().setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
                     plates[i][j].getBtn().setOnClickListener(this);
                     //absoluteLayout.addView(plates[i][j].getBtn());
                     if(plates[i][j].getNumber() != 0){
@@ -101,9 +102,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (manager.move(v.getX(), v.getY(), density)) {
             steps.setText(String.valueOf(manager.getCountSteps()));
             manager.buttonAnimator(v, v.getX(), coorX[manager.getX()] * density, v.getY(), coorY[manager.getY()] * density, manager.getDir());
-//            if(timeStarted){
+            if(mTime == 0L){
+                gameStarted = true;
+                mTime = SystemClock.uptimeMillis();
+                handler.removeCallbacks(timer);
+                handler.postDelayed(timer, 0);
+            }
+//            if(inst == -1){
 //                StartTime = SystemClock.uptimeMillis();
-//                //timerTask.execute();
+//                handler.postDelayed(timer, 0);
+//                //handler.runAfterDelay(timer, 0);
 //            }
         }
         if(manager.checkGameOver()){
@@ -121,15 +129,24 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(getApplicationContext(), "Sound", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.pause:
-//                try {
-//                    timer.wait();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-                pausePic.setVisibility(View.VISIBLE);
-                pause.setBackground(getResources().getDrawable(R.drawable.ic_play_arrow_black_36dp));
-                absoluteLayout.setVisibility(View.INVISIBLE);
-                absoluteLayout.setClickable(false);
+                if(!play){
+                    pausePic.setVisibility(View.VISIBLE);
+                    pause.setBackground(getResources().getDrawable(R.drawable.ic_play_arrow_black_36dp));
+                    absoluteLayout.setVisibility(View.INVISIBLE);
+                    absoluteLayout.setClickable(false);
+                    play = true;
+                    handler.removeCallbacks(timer);
+                    gamePaused = true;
+                    //handler.pause();
+                }else{
+                    pausePic.setVisibility(View.INVISIBLE);
+                    pause.setBackground(getResources().getDrawable(R.drawable.ic_pause_black_36dp));
+                    absoluteLayout.setVisibility(View.VISIBLE);
+                    absoluteLayout.setClickable(true);
+                    play = false;
+                    if(gameStarted) handler.postDelayed(timer, 0);
+                    //handler.resume();
+                }
                 Toast.makeText(getApplicationContext(), "Pause", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.restart:
@@ -165,61 +182,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
    public Runnable timer = new Runnable() {
         @Override
         public void run() {
-            if(timerStopped){
-                time.setText("0:00");
-                steps.setText("0");
-                manager.setGame(false);
-            }else {
-                timeStarted = false;
-                MillisecondTime = SystemClock.uptimeMillis() - StartTime;
-                UpdateTime = TimeBuff + MillisecondTime;
-                Seconds = (int) (UpdateTime / 1000);
-                Minutes = Seconds / 60;
-                Seconds = Seconds % 60;
-                MilliSeconds = (int) (UpdateTime % 1000);
-                time.setText("" + Minutes + ":"
-                        + String.format("%02d", Seconds));
+            final long start = mTime;
+            Log.d(TAG, " mTime="+mTime);
+            MillisecondTime = SystemClock.uptimeMillis() - start;
+//            UpdateTime = TimeBuff + MillisecondTime;
+            Seconds = (int) (MillisecondTime / 1000);
+            Minutes = Seconds / 60;
+            Seconds = Seconds % 60;
+            time.setText("" + Minutes + ":"
+                    + String.format("%02d", Seconds));
+            handler.postDelayed(this, 0);
             }
-        }
-    };
-
-     private class TimerTask extends AsyncTask<Void, Integer, Void>{
-
-         @Override
-         protected void onPostExecute(Void aVoid) {
-             super.onPostExecute(aVoid);
-         }
-
-         @Override
-         protected void onProgressUpdate(Integer... values) {
-             super.onProgressUpdate(values);
-             Minutes = Seconds / 60;
-             Seconds = Seconds % 60;
-             time.setText("" + Minutes + ":"
-                     + String.format("%02d", Seconds));
-         }
-
-         @Override
-         protected void onPreExecute() {
-             super.onPreExecute();
-
-         }
-
-         @Override
-         protected Void doInBackground(Void... params) {
-
-             MillisecondTime = SystemClock.uptimeMillis() - StartTime;
-             UpdateTime = TimeBuff + MillisecondTime;
-             Seconds = (int) (UpdateTime / 1000);
-             publishProgress(Seconds);
-             try {
-                 Thread.sleep(1);
-             } catch (InterruptedException e) {
-                 e.printStackTrace();
-             }
-             return null;
-         }
-     }
+        };
 
     @Override
     protected void onStart() {

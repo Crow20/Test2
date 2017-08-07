@@ -24,7 +24,7 @@ public class GameManager {
     private boolean isGame = false;
     protected int [][] arrPlates = new int[4][4];
     private static int [][] defPlates = {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 0}};
-    int [][] platesNum = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 0, 12}, {13, 14, 15, 11}};
+    int [][] platesNum = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 0, 15}};
     protected Direction dir = Direction.NOTMOVE;
     private int x0;
     private int y0;
@@ -135,41 +135,37 @@ public class GameManager {
             }
         }
         //tmpPlate[x][y]
-        if (px0 == x || py0 == y) {
+        if ((px0 == x || py0 == y) && (Math.abs(px0-x) == 1 || Math.abs(py0-y) == 1)) {
             if (!(px0 == x && py0 == y)) {
                 if (px0 == x) {
                     if (py0 < y) {
-                        for (int i = py0 + 1; i <= y; i++) {
-                            arrPlates[x][i - 1] = arrPlates[x][i];
-                        }
+                        arrPlates[y - 1][x] = arrPlates[y][x];
+                        arrPlates[y][x] = 0;
                     } else {
-                        for (int i = py0; i > y; i--) {
-                            arrPlates[x][i] = arrPlates[x][i - 1];
-                        }
+                        arrPlates[y + 1][x] = arrPlates[y][x];
+                        arrPlates[y][x] = 0;
                     }
                 }
                 if (py0 == y) {
                     if (px0 < x) {
-                        for (int i = px0 + 1; i <= x; i++) {
-                            arrPlates[i - 1][y] = arrPlates[i][y];
-                        }
+                        arrPlates[y][x - 1] = arrPlates[y][x];
+                        arrPlates[y][x] = 0;
                     } else {
-                        for (int i = px0; i > x; i--) {
-                            arrPlates[i][y] = arrPlates[i - 1][y];
-                        }
+                        arrPlates[y][x + 1] = arrPlates[y][x];
+                        arrPlates[y][x] = 0;
                     }
                 }
-                arrPlates[x][y] = 0;
+                //arrPlates[x][y] = 0;
                 //проверять наоборот икс и игрек
                 if (px0 < x && (x - px0 == 1)) {
-                    dir = Direction.LEFT;
-                } else if (px0 > x&& (px0 - x == 1)) {
                     dir = Direction.RIGHT;
+                } else if (px0 > x&& (px0 - x == 1)) {
+                    dir = Direction.LEFT;
                 } else if (px0 == x) {
                     if (py0 < y && (Math.abs(y-py0) == 1)) {
-                        dir = Direction.DOWN;
-                    } else if(Math.abs(y-py0) == 1){
                         dir = Direction.UP;
+                    } else if(py0 > y && Math.abs(y-py0) == 1){
+                        dir = Direction.DOWN;
                     }
                 }
                 res = true;
@@ -178,6 +174,8 @@ public class GameManager {
             }
         }
         // Возвращаем результат
+        setX(px0);
+        setY(py0);
         Log.d("Move", " Move="+String.valueOf(res));
         if(res)countSteps++;
         return res;
@@ -208,23 +206,26 @@ public class GameManager {
     {
         int a = 1;
         boolean res = true;
-        for (int i = 0; i <4; i++)
-            for (int j = 0; j<4; j++)
-            {
-                if (i==3&&j==3){a=0;}
-                if (this.arrPlates[j][i]!=a)
-                {
-                    res=false;
-                    break;
+        for (int i = 0; i <4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if(i == 3 && j == 3) a=0;
+                if (this.arrPlates[i][j] != a) {
+                    res = false;
+
                 }
                 a++;
             }
+        }
         return res;
     }
 
     public void saveGameState(ArrayList<Plate> startState){
         curstate = new ArrayList<>();
         curstate = startState;
+    }
+
+    public void timer(){
+
     }
 
     public int getCountSteps() {
