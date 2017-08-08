@@ -2,6 +2,7 @@ package com.sike.xv;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -41,7 +42,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     static GameManager manager;
     //ArrayList<Plate> plates = new ArrayList<>();
     private Plate[][] plates;
-    final String TAG = "Timer";
+    final String TAG = "States";
     long MillisecondTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
     int Seconds, Minutes, MilliSeconds ;
@@ -123,6 +124,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onButtonsClick(View v){
         switch (v.getId()){
             case R.id.menuGame:
+//                moveTaskToBack(true);
+//                Intent intent = new Intent(this, MainActivity.class);
+//                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(new Intent(this, MainActivity.class));
                 Toast.makeText(getApplicationContext(), "Menu", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.sound:
@@ -144,13 +149,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     absoluteLayout.setVisibility(View.VISIBLE);
                     absoluteLayout.setClickable(true);
                     play = false;
-                    if(gameStarted) handler.postDelayed(timer, 0);
+                    if(gameStarted){
+                        mTime = SystemClock.uptimeMillis()-MillisecondTime;
+                        handler.postDelayed(timer, 0);
+                    }
                     //handler.resume();
                 }
                 Toast.makeText(getApplicationContext(), "Pause", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.restart:
                 //manager.setToDefault();
+                gameStarted = false;
                 recreate();
                 //Toast.makeText(getApplicationContext(), "Restart", Toast.LENGTH_SHORT).show();
                 break;
@@ -183,7 +192,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void run() {
             final long start = mTime;
-            Log.d(TAG, " mTime="+mTime);
+            //Log.d(TAG, " mTime="+mTime);
             MillisecondTime = SystemClock.uptimeMillis() - start;
 //            UpdateTime = TimeBuff + MillisecondTime;
             Seconds = (int) (MillisecondTime / 1000);

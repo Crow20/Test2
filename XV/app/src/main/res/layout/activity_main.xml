@@ -33,44 +33,44 @@
         app:layout_constraintTop_toTopOf="@+id/toolbar">
 
         <Button
-            android:id="@+id/continuegame"
-            android:layout_width="match_parent"
-            android:layout_height="75dp"
-            android:enabled="false"
-            android:text="Продолжить игру"
-            android:visibility="invisible" />
-
-        <Button
             android:id="@+id/start"
             android:layout_width="match_parent"
             android:layout_height="75dp"
             android:layout_marginBottom="8dp"
+            android:background="#856ab4"
             android:text="Начать игру"
-            android:textSize="14sp" />
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/stat"
             android:layout_width="match_parent"
             android:layout_height="75dp"
             android:layout_marginBottom="8dp"
+            android:background="#856ab4"
             android:text="Статистика"
-            android:textSize="14sp" />
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/pref"
             android:layout_width="match_parent"
             android:layout_height="75dp"
             android:layout_marginBottom="8dp"
+            android:background="#856ab4"
             android:text="Настройки"
-            android:textSize="14sp" />
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/exit"
             android:layout_width="match_parent"
             android:layout_height="75dp"
             android:layout_marginBottom="8dp"
+            android:background="#856ab4"
             android:text="Выход"
-            android:textSize="14sp" />
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp" />
     </LinearLayout>
 
     <Button
