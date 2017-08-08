@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 game = true;
                 startActivity(new Intent("android.intent.action.START"));
-                start.setText("Продолжить игру");
                 break;
             case R.id.stat:
                 startActivity(new Intent("android.intent.action.STAT"));

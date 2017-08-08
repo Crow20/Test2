@@ -3,6 +3,7 @@ package com.sike.xv;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -17,10 +18,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sike.xv.database.DataBaseAdapter;
+import com.sike.xv.database.StatEntryContract;
+import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.engine.Plate;
 import com.sike.xv.manager.ColumnEnum;
 import com.sike.xv.manager.GameManager;
 import com.sike.xv.manager.RowEnum;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
@@ -38,11 +45,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     ImageView pausePic;
     Button menuGame;
     Button pause;
+    Button start;
+    DataBaseAdapter adapter;
 
     static GameManager manager;
     //ArrayList<Plate> plates = new ArrayList<>();
     private Plate[][] plates;
     final String TAG = "States";
+    final String DB_TAG = "Datebase";
     long MillisecondTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
     int Seconds, Minutes, MilliSeconds ;
@@ -53,17 +63,19 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_game);
         density = this.getResources().getDisplayMetrics().density;
         width = (int) (pixel * density);
         height = (int) (pixel * density);
+
+        adapter = new DataBaseAdapter(this);
 
         steps = (TextView) findViewById(R.id.steps);
         time = (TextView) findViewById(R.id.time);
         menuGame = (Button) findViewById(R.id.menuGame);
         pause = (Button) findViewById(R.id.pause);
         pausePic = (ImageView) findViewById(R.id.pausePic);
+        start = (Button) findViewById(R.id.start);
         absoluteLayout = (AbsoluteLayout) findViewById(R.id.absoluteLayout);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_game);
@@ -77,6 +89,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //manager.setGame(true);
         addButtons();
         handler = new Handler();
+        adapter.dataBase();
         Log.d(TAG, "GameActivity: onCreate()");
     }
 

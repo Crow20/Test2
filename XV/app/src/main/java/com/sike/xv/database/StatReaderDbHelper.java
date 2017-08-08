@@ -16,7 +16,7 @@ import java.util.List;
 public class StatReaderDbHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "StatReader.db";
+    private static final String DATABASE_NAME = "StatReader";
     private static final String TABLE_STAT = "stat";
 
     private static final String KEY_ID = "id";
@@ -29,7 +29,7 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_STAT_TABLE = "CREATE_TABLE"+TABLE_STAT+"("+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_TIME + " TEXT,"
+        String CREATE_STAT_TABLE = "CREATE TABLE "+TABLE_STAT+"("+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_TIME + " TEXT,"
                 + KEY_STEPS + " TEXT" + ")";
         db.execSQL(CREATE_STAT_TABLE);
     }
@@ -41,12 +41,12 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    void addEntry(StatEntryContract entryContract){
+      void addEntry(StatEntryContract entryContract){
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(KEY_TIME, entryContract.get_time()); // Contact Name
-        values.put(KEY_STEPS, entryContract.get_steps()); // Contact Phone
+        values.put(KEY_STEPS, entryContract.get_steps());// Contact Phone
 
         // Inserting Row
         db.insert(TABLE_STAT, null, values);
