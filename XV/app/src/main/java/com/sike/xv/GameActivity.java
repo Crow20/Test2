@@ -48,7 +48,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     int Seconds, Minutes, MilliSeconds ;
     private long mTime = 0L;
     static boolean gamePaused ,gameStarted ,play = false;
-    int inst = -1;
     final int DIALOG_EXIT = 1;
 
     @Override
@@ -194,6 +193,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             final long start = mTime;
             //Log.d(TAG, " mTime="+mTime);
             MillisecondTime = SystemClock.uptimeMillis() - start;
+            Log.d(TAG, " MillisecondTime="+MillisecondTime);
 //            UpdateTime = TimeBuff + MillisecondTime;
             Seconds = (int) (MillisecondTime / 1000);
             Minutes = Seconds / 60;
