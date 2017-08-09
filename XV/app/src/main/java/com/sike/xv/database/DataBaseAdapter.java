@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.sike.xv.R;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -26,7 +28,12 @@ public class DataBaseAdapter extends BaseAdapter {
         ctx=context;
         objects = entry;
         Inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
+        Collections.sort(objects, new Comparator<StatEntryContract>() {
+            @Override
+            public int compare(StatEntryContract o1, StatEntryContract o2) {
+                return Integer.valueOf(o1.get_time()).compareTo(Integer.valueOf(o2.get_time()));
+            }
+        });
 
 //        density = context.getResources().getDisplayMetrics().density;
 //        paddingDp = (int)(paddingPixel*density);

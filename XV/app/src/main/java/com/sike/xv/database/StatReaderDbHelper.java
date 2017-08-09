@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by agritsenko on 08.08.2017.
@@ -23,6 +24,7 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
     private static final String KEY_ID = "id";
     private static final String KEY_TIME = "time";
     private static final String KEY_STEPS = "steps";
+
 
     public StatReaderDbHelper(Context ctx){
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
@@ -115,6 +117,12 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         cursor.close();
 
         return cursor.getCount();
+    }
+
+    public void addNewTable(SQLiteDatabase db, String name){
+
+        String CREATE_NEW_TABLE = "CREATE TABLE IF NOT EXISTS "+name+"("+ KEY_ID + " TEXT, number INTEGER, level INTEGER" + ")";
+        db.execSQL(CREATE_NEW_TABLE);
     }
 
     public static String getTableStat() {
