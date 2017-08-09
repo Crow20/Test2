@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +17,8 @@ import java.util.List;
 public class StatReaderDbHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "StatReader";
-    private static final String TABLE_STAT = "stat";
+    private static final String DATABASE_NAME = "StatReader.db";
+    private static String TABLE_STAT = "stat";
 
     private static final String KEY_ID = "id";
     private static final String KEY_TIME = "time";
@@ -41,7 +42,7 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-      void addEntry(StatEntryContract entryContract){
+     public void addEntry(StatEntryContract entryContract){
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -82,6 +83,7 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
                 entryContract.set_id(Integer.parseInt(cursor.getString(0)));
                 entryContract.set_time(cursor.getString(1));
                 entryContract.set_steps(Integer.parseInt(cursor.getString(2)));
+                statEntryContractList.add(entryContract);
             }while(cursor.moveToNext());
         }
 
@@ -113,5 +115,13 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         cursor.close();
 
         return cursor.getCount();
+    }
+
+    public static String getTableStat() {
+        return TABLE_STAT;
+    }
+
+    public static void setTableStat(String tableStat) {
+        TABLE_STAT = tableStat;
     }
 }

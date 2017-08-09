@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 
+import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.engine.Plate;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class GameManager {
     private int x;
     private int y;
     protected int countSteps = 0;
-
+    protected static StatReaderDbHelper db;
 
     public Plate[][] setTestFields(Context ctx, int [][] numbers){
         for(int i = 0; i < 4; i++){
@@ -74,13 +75,8 @@ public class GameManager {
         return platesNum;
     }
 
-    public Plate[][] getPlates() {
-        return plates;
-    }
-
-    public void setDirection(int x0, int y0, int x, int y){
-
-
+    public GameManager getGameManager(){
+        return this;
     }
 
     public boolean move(float flX, float flY, float density) {
@@ -226,6 +222,19 @@ public class GameManager {
 
     public void timer(){
 
+    }
+
+    public void createDB(Context ctx){
+        db = new StatReaderDbHelper(ctx);
+    }
+
+
+    public static StatReaderDbHelper getDb() {
+        return db;
+    }
+
+    public static void setDb(StatReaderDbHelper db) {
+        GameManager.db = db;
     }
 
     public int getCountSteps() {

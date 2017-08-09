@@ -17,8 +17,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button stat;
     Button pref;
     Button exit;
+    Intent intent;
+
     final String TAG = "States";
-    private static boolean game = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +36,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pref.setOnClickListener(this);
         start.setOnClickListener(this);
         stat.setOnClickListener(this);
-
-
-
+        intent = getIntent();
+        if(intent.getBooleanExtra("game", false)){
+            start.setText("Продолжить");
+        }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -48,14 +51,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.start:
-                if(game){
+                if(intent.getBooleanExtra("game", false)){
                     moveTaskToBack(true);
                     Intent intent = new Intent(this, GameActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
                     break;
                 }
-                game = true;
                 startActivity(new Intent("android.intent.action.START"));
                 break;
             case R.id.stat:

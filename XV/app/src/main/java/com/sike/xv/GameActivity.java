@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
@@ -47,6 +48,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Button pause;
     Button start;
     DataBaseAdapter adapter;
+    List<StatEntryContract> list = new ArrayList<>();
 
     static GameManager manager;
     //ArrayList<Plate> plates = new ArrayList<>();
@@ -59,6 +61,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private long mTime = 0L;
     static boolean gamePaused ,gameStarted ,play = false;
     final int DIALOG_EXIT = 1;
+    int games = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +72,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         width = (int) (pixel * density);
         height = (int) (pixel * density);
 
-        adapter = new DataBaseAdapter(this);
+        //adapter = new DataBaseAdapter(this);
 
         steps = (TextView) findViewById(R.id.steps);
         time = (TextView) findViewById(R.id.time);
@@ -83,13 +87,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         manager = new GameManager();
-        //plates = manager.setTestFields(this, manager.getPlatesNum());
-        plates = manager.setFields(this, manager.getPlatesNum());
+        plates = manager.setTestFields(this, manager.getPlatesNum());
+        //plates = manager.setFields(this, manager.getPlatesNum());
+        manager.createDB(this);
         //manager.saveGameState(plates);
         //manager.setGame(true);
+
+
         addButtons();
         handler = new Handler();
-        adapter.dataBase();
+       // adapter.dataBase();
         Log.d(TAG, "GameActivity: onCreate()");
     }
 
@@ -112,6 +119,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        manager.setGame(true);
         if (manager.move(v.getX(), v.getY(), density)) {
             steps.setText(String.valueOf(manager.getCountSteps()));
             manager.buttonAnimator(v, v.getX(), coorX[manager.getX()] * density, v.getY(), coorY[manager.getY()] * density, manager.getDir());
@@ -129,6 +137,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(manager.checkGameOver()){
             //timerStopped = true;
+            games++;
+            manager.getDb().addEntry(new StatEntryContract(games, String.valueOf(time.getText()), manager.getCountSteps()));
+            handler.removeCallbacks(timer);
             showDialog(DIALOG_EXIT);
         }
     }
@@ -139,11 +150,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 //                moveTaskToBack(true);
 //                Intent intent = new Intent(this, MainActivity.class);
 //                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(new Intent(this, MainActivity.class));
-                Toast.makeText(getApplicationContext(), "Menu", Toast.LENGTH_SHORT).show();
+
+                startActivity(new Intent(this, MainActivity.class).putExtra("game", manager.isGame()));
+                //Toast.makeText(getApplicationContext(), "Menu", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.sound:
-                Toast.makeText(getApplicationContext(), "Sound", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Sound", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.pause:
                 if(!play){
@@ -226,12 +238,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
+        if(manager.isGame()){
+            handler.postDelayed(timer, 0);
+        }
+
         Log.d(TAG, "GameActivity: onResume()");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        handler.removeCallbacks(timer);
         Log.d(TAG, "GameActivity: onPause()");
     }
 
@@ -245,6 +262,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "GameActivity: onDestroy()");
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return false;
     }
 }
 
