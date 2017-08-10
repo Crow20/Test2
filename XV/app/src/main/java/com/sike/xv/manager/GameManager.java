@@ -131,7 +131,7 @@ public class GameManager {
             }
         }
         //tmpPlate[x][y]
-        if ((px0 == x || py0 == y) && (Math.abs(px0-x) == 1 || Math.abs(py0-y) == 1)) {
+        if ((px0 == x || py0 == y) && (Math.abs(px0-x) == 1 || Math.abs(py0-y) == 1)&& this.isGame()) {
             if (!(px0 == x && py0 == y)) {
                 if (px0 == x) {
                     if (py0 < y) {

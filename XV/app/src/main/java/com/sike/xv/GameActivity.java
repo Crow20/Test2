@@ -47,10 +47,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Button menuGame;
     Button pause;
     Button start;
+    Button button;
     DataBaseAdapter adapter;
     List<StatEntryContract> list = new ArrayList<>();
 
     static GameManager manager;
+    AlertDialog.Builder adb;
     //ArrayList<Plate> plates = new ArrayList<>();
     private Plate[][] plates;
     final String TAG = "States";
@@ -59,7 +61,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Handler handler;
     int Seconds, Minutes, MilliSeconds ;
     private long mTime = 0L;
-    static boolean gamePaused ,gameStarted ,play = false;
+    static boolean gamePaused ,gameStarted ,play ,newgame= false;
     final int DIALOG_EXIT = 1;
     int games = 1;
 
@@ -71,7 +73,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         density = this.getResources().getDisplayMetrics().density;
         width = (int) (pixel * density);
         height = (int) (pixel * density);
-
+        newgame = false;
         //adapter = new DataBaseAdapter(this);
 
         steps = (TextView) findViewById(R.id.steps);
@@ -80,6 +82,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         pause = (Button) findViewById(R.id.pause);
         pausePic = (ImageView) findViewById(R.id.pausePic);
         start = (Button) findViewById(R.id.start);
+        button = (Button) findViewById(R.id.button);
         absoluteLayout = (AbsoluteLayout) findViewById(R.id.absoluteLayout);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_game);
@@ -88,10 +91,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         manager = new GameManager();
         plates = manager.setTestFields(this, manager.getPlatesNum());
+        adb = new AlertDialog.Builder(this);
         //plates = manager.setFields(this, manager.getPlatesNum());
         manager.createDB(this);
         //manager.saveGameState(plates);
         //manager.setGame(true);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recreate();
+            }
+        });
 
 
         addButtons();
@@ -120,11 +131,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         manager.setGame(true);
-        if (manager.move(v.getX(), v.getY(), density)) {
+        //Log.d(TAG, "manager.isGame()"+manager.isGame());
+        if (manager.move(v.getX(), v.getY(), density) && manager.isGame()) {
             steps.setText(String.valueOf(manager.getCountSteps()));
             manager.buttonAnimator(v, v.getX(), coorX[manager.getX()] * density, v.getY(), coorY[manager.getY()] * density, manager.getDir());
             if(mTime == 0L){
-                gameStarted = true;
                 mTime = SystemClock.uptimeMillis();
                 handler.removeCallbacks(timer);
                 handler.postDelayed(timer, 0);
@@ -137,9 +148,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(manager.checkGameOver()){
             //timerStopped = true;
-            games++;
+            manager.setGame(false);
             manager.getDb().addEntry(new StatEntryContract(games, String.valueOf(time.getText()), manager.getCountSteps()));
             handler.removeCallbacks(timer);
+            games++;
+            newgame = true;
+            //onCreateDialog(1);
             showDialog(DIALOG_EXIT);
         }
     }
@@ -147,15 +161,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onButtonsClick(View v){
         switch (v.getId()){
             case R.id.menuGame:
-//                moveTaskToBack(true);
-//                Intent intent = new Intent(this, MainActivity.class);
-//                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-
-                startActivity(new Intent(this, MainActivity.class).putExtra("game", manager.isGame()));
-                //Toast.makeText(getApplicationContext(), "Menu", Toast.LENGTH_SHORT).show();
+                if(manager.isGame()){
+                    startActivity(new Intent(this, MainActivity.class).putExtra("game", manager.isGame()));
+                }else {
+                    startActivity(new Intent(this, MainActivity.class).putExtra("new game", true));
+                }
                 break;
             case R.id.sound:
-                //Toast.makeText(getApplicationContext(), "Sound", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.pause:
                 if(!play){
@@ -166,24 +178,29 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     play = true;
                     handler.removeCallbacks(timer);
                     gamePaused = true;
+                    gameStarted = true;
+
                     //handler.pause();
                 }else{
                     pausePic.setVisibility(View.INVISIBLE);
                     pause.setBackground(getResources().getDrawable(R.drawable.ic_pause_black_36dp));
                     absoluteLayout.setVisibility(View.VISIBLE);
                     absoluteLayout.setClickable(true);
+                    gamePaused = false;
                     play = false;
-                    if(gameStarted){
+                    if(gameStarted && manager.isGame()){
                         mTime = SystemClock.uptimeMillis()-MillisecondTime;
                         handler.postDelayed(timer, 0);
                     }
                     //handler.resume();
                 }
-                Toast.makeText(getApplicationContext(), "Pause", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Pause", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.restart:
                 //manager.setToDefault();
                 gameStarted = false;
+                play = false;
+                gamePaused = false;
                 recreate();
                 //Toast.makeText(getApplicationContext(), "Restart", Toast.LENGTH_SHORT).show();
                 break;
@@ -192,12 +209,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     protected Dialog onCreateDialog(int id){
         if (id == DIALOG_EXIT) {
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
-            adb.setTitle("Игра закончена");
-            adb.setMessage( "Поздравляем! Вы окончили игру за "+time.getText()+" минут(у) и сделали "+manager.getCountSteps()+" ходов.");
-            adb.setIcon(android.R.drawable.ic_dialog_info);
-            adb.setNeutralButton(R.string.yes, myClickListener);
-            return adb.create();
+            return new AlertDialog.Builder(this).setTitle("Игра закончена")
+                    .setMessage("Поздравляем! Вы окончили игру за "+time.getText()+" минут(у) и сделали "+manager.getCountSteps()+" ходов.")
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setNeutralButton(R.string.yes, myClickListener)
+                    .create();
         }
         return super.onCreateDialog(id);
     }
@@ -206,19 +222,29 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_NEUTRAL:
+                    absoluteLayout.setOnClickListener(null);
                     break;
             }
         }
     };
 
 
-   public Runnable timer = new Runnable() {
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        if(id == DIALOG_EXIT){
+            ((AlertDialog) dialog).setMessage("Поздравляем! Вы окончили игру за "+time.getText()+" минут(у) и сделали "+manager.getCountSteps()+" ходов.");
+        }
+        super.onPrepareDialog(id, dialog);
+    }
+
+    public Runnable timer = new Runnable() {
         @Override
         public void run() {
             final long start = mTime;
             //Log.d(TAG, " mTime="+mTime);
             MillisecondTime = SystemClock.uptimeMillis() - start;
-            Log.d(TAG, " MillisecondTime="+MillisecondTime);
+            Log.d("Timer", " MillisecondTime="+MillisecondTime);
 //            UpdateTime = TimeBuff + MillisecondTime;
             Seconds = (int) (MillisecondTime / 1000);
             Minutes = Seconds / 60;
@@ -232,15 +258,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
+        App.gameActivity = this;
+        if(manager.isGame() && !gamePaused){
+            mTime = SystemClock.uptimeMillis()-MillisecondTime;
+            handler.postDelayed(timer, 0);
+        }
+        if(newgame){
+            recreate();
+        }
         Log.d(TAG, "GameActivity: onStart()");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(manager.isGame()){
-            handler.postDelayed(timer, 0);
-        }
 
         Log.d(TAG, "GameActivity: onResume()");
     }
@@ -254,6 +285,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onStop() {
+        handler.removeCallbacks(timer);
         super.onStop();
         Log.d(TAG, "GameActivity: onStop()");
     }
@@ -261,6 +293,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        App.gameActivity = null;
         Log.d(TAG, "GameActivity: onDestroy()");
     }
 
