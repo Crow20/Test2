@@ -8,10 +8,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
+import com.sike.xv.database.StatReaderDbHelper;
+
+import java.util.ArrayList;
+import java.util.Objects;
+
 public class SettingsActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     Button menuSet;
+    StatReaderDbHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +28,8 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         menuSet = (Button) findViewById(R.id.menu_settings);
         final Intent intent = new Intent(this, MainActivity.class);
+        db = new StatReaderDbHelper(this);
+        db.addNewTable(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "settings");
         menuSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
