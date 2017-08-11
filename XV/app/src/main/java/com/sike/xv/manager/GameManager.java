@@ -1,6 +1,7 @@
 package com.sike.xv.manager;
 
 import android.animation.ObjectAnimator;
+import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,7 @@ public class GameManager {
     protected int[] coorX = {ColumnEnum.FIRST_COLUMN.getValue(), ColumnEnum.SECOND_COLUMN.getValue(), ColumnEnum.THIRD_COLUMN.getValue(), ColumnEnum.FOURTH_COLUMN.getValue()};
     protected int[] coorY = {RowEnum.FIRST_ROW.getValue(), RowEnum.SECOND_ROW.getValue(), RowEnum.THIRD_ROW.getValue(), RowEnum.FOURTH_ROW.getValue()};
     private boolean isGame = false;
+    private boolean cached = true;
     protected int [][] arrPlates = new int[4][4];
     private static int [][] defPlates = {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 0}};
     int [][] platesNum = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 0, 15}};
@@ -68,6 +70,18 @@ public class GameManager {
                 arrPlates[i][j] = plates[i][j].getNumber();
             }
         }
+
+        for(int i = 0; i < 4 && cached; i++){
+            ContentValues values = new ContentValues();
+            values.put("first", arrPlates[i][0]);
+            values.put("two", arrPlates[i][1]);
+            values.put("three", arrPlates[i][2]);
+            values.put("four", arrPlates[i][3]);
+            db.getWritableDatabase().insert("cache", null, values);
+            db.getWritableDatabase().close();
+
+        }
+        this.cached = false;
         return plates;
     }
 

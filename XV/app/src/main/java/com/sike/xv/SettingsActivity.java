@@ -29,7 +29,8 @@ public class SettingsActivity extends AppCompatActivity {
         menuSet = (Button) findViewById(R.id.menu_settings);
         final Intent intent = new Intent(this, MainActivity.class);
         db = new StatReaderDbHelper(this);
-        db.addNewTable(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "settings");
+        db.executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "CREATE TABLE IF NOT EXISTS settings ( id TEXT PRIMARY KEY, number INTEGER, level INTEGER)");
+        //db.addEntryToTable(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "INSERT INTO settings VALUES" +"("+"'"+"1"+"', "+"1, 100)");
         menuSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

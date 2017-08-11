@@ -6,8 +6,11 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import com.sike.xv.database.StatReaderDbHelper;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -16,6 +19,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button pref;
     Button exit;
     Intent intent;
+    StatReaderDbHelper db;
+    boolean exitApp = false;
 
     final String TAG = "States";
 
@@ -42,7 +47,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-//        Log.d(TAG, "MainActivity: onCreate()");
+        db = new StatReaderDbHelper(this);
+        //db.
+
+        Log.d(TAG, "MainActivity: onCreate()");
     }
 
     @Override
@@ -72,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 App.close();
+                                exitApp = true;
+                                onStart();
                             }
                         })
                         .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -90,12 +100,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        App.mainActivity = this;
+        if(exitApp){
+            this.finish();
+        }
+        Log.d(TAG, "MainActivity: onStart()");
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        App.mainActivity = null;
+        android.os.Process.killProcess(android.os.Process.myPid());
+        Log.d(TAG, "MainActivity: onDestroy()");
+
     }
 }

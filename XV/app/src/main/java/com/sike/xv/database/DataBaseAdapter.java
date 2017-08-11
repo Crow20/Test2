@@ -22,18 +22,24 @@ public class DataBaseAdapter extends BaseAdapter {
     Context ctx;
     LayoutInflater Inflater;
     List<StatEntryContract> objects;
+    float density;
 
 
-    public DataBaseAdapter(Context context, List<StatEntryContract> entry){
+    public DataBaseAdapter(Context context, List<StatEntryContract> entry, float value){
         ctx=context;
         objects = entry;
         Inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        density = value;
         Collections.sort(objects, new Comparator<StatEntryContract>() {
             @Override
             public int compare(StatEntryContract o1, StatEntryContract o2) {
-                return Integer.valueOf(o1.get_time()).compareTo(Integer.valueOf(o2.get_time()));
+                return String.valueOf(o1.get_time()).compareTo(String.valueOf(o2.get_time()));
             }
         });
+        if (objects.size() > 10) {
+            objects.subList(9, objects.size()).clear();
+        }
+
 
 //        density = context.getResources().getDisplayMetrics().density;
 //        paddingDp = (int)(paddingPixel*density);
@@ -74,14 +80,25 @@ public class DataBaseAdapter extends BaseAdapter {
 //            }
 
         StatEntryContract entryContract = getItem(position);
+        if(entryContract.get_id()<=9){
+            String tmp;
+            tmp = "Игрок " + String.valueOf(entryContract.get_id() + ".");
+            ((TextView) view.findViewById(R.id.col1)).setPadding(0, 0, (int)(10*density), 0);
+            ((TextView) view.findViewById(R.id.col1)).setText(tmp);
+            tmp = "Время: " + entryContract.get_time();
+            ((TextView) view.findViewById(R.id.col2)).setText(tmp);
+            tmp = "Ходы:" + entryContract.get_steps();
+            ((TextView) view.findViewById(R.id.col3)).setText(tmp);
+        }else{
+            String tmp;
+            tmp = "Игрок " + String.valueOf(entryContract.get_id() + ".");
+            ((TextView) view.findViewById(R.id.col1)).setText(tmp);
+            tmp = "Время: " + entryContract.get_time();
+            ((TextView) view.findViewById(R.id.col2)).setText(tmp);
+            tmp = "Ходы:" + entryContract.get_steps();
+            ((TextView) view.findViewById(R.id.col3)).setText(tmp);
+        }
 
-        String tmp;
-        tmp = "Игрок " + String.valueOf(entryContract.get_id() + ".");
-        ((TextView) view.findViewById(R.id.col1)).setText(tmp);
-        tmp = "Время: " + entryContract.get_time();
-        ((TextView) view.findViewById(R.id.col2)).setText(tmp);
-        tmp = "Ходы:" + entryContract.get_steps();
-        ((TextView) view.findViewById(R.id.col3)).setText(tmp);
 
         return view;
     }

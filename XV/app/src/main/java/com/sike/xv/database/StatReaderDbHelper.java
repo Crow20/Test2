@@ -20,6 +20,8 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "StatReader.db";
     private static String TABLE_STAT = "stat";
+    private static String TABLE_SETTINGS = "settings";
+    private static String TABLE_CACHE = "cache";
 
     private static final String KEY_ID = "id";
     private static final String KEY_TIME = "time";
@@ -119,17 +121,7 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         return cursor.getCount();
     }
 
-    public void addNewTable(SQLiteDatabase db, String name){
-
-        String CREATE_NEW_TABLE = "CREATE TABLE IF NOT EXISTS "+name+"("+ KEY_ID + " TEXT, number INTEGER, level INTEGER" + ")";
-        db.execSQL(CREATE_NEW_TABLE);
-    }
-
-    public static String getTableStat() {
-        return TABLE_STAT;
-    }
-
-    public static void setTableStat(String tableStat) {
-        TABLE_STAT = tableStat;
+    public void executeQueryRequest(SQLiteDatabase db, String query){
+        db.execSQL(query);
     }
 }

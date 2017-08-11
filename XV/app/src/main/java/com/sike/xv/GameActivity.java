@@ -43,6 +43,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Toolbar toolbar;
     TextView steps;
     TextView time;
+    TextView best_time;
     ImageView pausePic;
     Button menuGame;
     Button pause;
@@ -82,7 +83,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         pause = (Button) findViewById(R.id.pause);
         pausePic = (ImageView) findViewById(R.id.pausePic);
         start = (Button) findViewById(R.id.start);
-        button = (Button) findViewById(R.id.button);
+        best_time = (TextView) findViewById(R.id.best_time);
         absoluteLayout = (AbsoluteLayout) findViewById(R.id.absoluteLayout);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_game);
@@ -90,21 +91,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         manager = new GameManager();
-        plates = manager.setTestFields(this, manager.getPlatesNum());
-        adb = new AlertDialog.Builder(this);
-        //plates = manager.setFields(this, manager.getPlatesNum());
         manager.createDB(this);
+        //plates = manager.setTestFields(this, manager.getPlatesNum());
+        adb = new AlertDialog.Builder(this);
+        plates = manager.setFields(this, manager.getPlatesNum());
         //manager.saveGameState(plates);
         //manager.setGame(true);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                recreate();
-            }
-        });
-
-
         addButtons();
         handler = new Handler();
        // adapter.dataBase();
@@ -156,6 +148,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             //onCreateDialog(1);
             showDialog(DIALOG_EXIT);
         }
+//        manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null),"CREATE TABLE cache(first INTEGER PRIMARY KEY, two INTEGER, three INTEGER, four INTEGER )");
+        //manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE cache");
+        manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null),"CREATE TABLE IF NOT EXISTS cache(first INTEGER, two INTEGER, three INTEGER, four INTEGER )");
+
     }
 
     public void onButtonsClick(View v){
@@ -222,7 +218,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_NEUTRAL:
-                    absoluteLayout.setOnClickListener(null);
+                    //absoluteLayout.setOnClickListener(null);
                     break;
             }
         }
