@@ -56,7 +56,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     AlertDialog.Builder adb;
     //ArrayList<Plate> plates = new ArrayList<>();
     private Plate[][] plates;
-    final String TAG = "States";
+    final String TAG = "Def";
     final String DB_TAG = "Datebase";
     long MillisecondTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
@@ -157,10 +157,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onButtonsClick(View v){
         switch (v.getId()){
             case R.id.menuGame:
+                Intent intent = new Intent(this, MainActivity.class);
                 if(manager.isGame()){
-                    startActivity(new Intent(this, MainActivity.class).putExtra("game", manager.isGame()));
-                }else {
-                    startActivity(new Intent(this, MainActivity.class).putExtra("new game", true));
+                    moveTaskToBack(true);
+                    intent.putExtra("game", manager.isGame());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                }else{
+                    intent.putExtra("new game", true);
+                    startActivity(intent);
                 }
                 break;
             case R.id.sound:

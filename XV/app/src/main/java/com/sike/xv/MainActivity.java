@@ -39,10 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pref.setOnClickListener(this);
         start.setOnClickListener(this);
         stat.setOnClickListener(this);
-        intent = getIntent();
-        if (intent.getBooleanExtra("game", false)) {
-            start.setText("Продолжить");
-        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -103,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(exitApp){
             this.finish();
         }
+        intent = getIntent();
+        if (intent.getBooleanExtra("game", false)) {
+            start.setText("Продолжить");
+        }
         Log.d(TAG, "MainActivity: onStart()");
 
     }
@@ -114,4 +115,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "MainActivity: onDestroy()");
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "MainActivity: onResume()");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "MainActivity: onPause()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "MainActivity: onStop()");
+    }
+
 }
