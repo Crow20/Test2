@@ -124,4 +124,29 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
     public void executeQueryRequest(SQLiteDatabase db, String query){
         db.execSQL(query);
     }
+
+    public List<int [][]> getEntries(String table){
+        List<int [][]> list = new ArrayList<>();
+        int [][] tmpArray = new int [4][4];
+        int i = 0;
+        int j = 0;
+        String selectQuery = "SELECT * FROM "+table;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if(cursor.moveToFirst()){
+            do{
+                if(j == 4 ) break;
+                tmpArray[j][0] = Integer.parseInt(cursor.getString(0));
+                tmpArray[j][1] = Integer.parseInt(cursor.getString(1));
+                tmpArray[j][2] = Integer.parseInt(cursor.getString(2));
+                tmpArray[j][3] = Integer.parseInt(cursor.getString(3));
+                if(j < 4){
+                    j++;
+                }
+            }while(cursor.moveToNext());
+        }
+        list.add(tmpArray);
+        return list;
+    }
 }

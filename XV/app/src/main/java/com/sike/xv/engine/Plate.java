@@ -42,8 +42,8 @@ public class Plate {
     }
 
     public boolean isActive() {
-        return active;
-    }
+    return active;
+}
 
     public void setActive(boolean active) {
         this.active = active;
@@ -55,5 +55,9 @@ public class Plate {
 
     public void setDir(Direction dir) {
         this.dir = dir;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 }

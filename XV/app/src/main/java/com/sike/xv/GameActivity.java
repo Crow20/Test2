@@ -48,15 +48,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Button menuGame;
     Button pause;
     Button start;
-    Button button;
-    DataBaseAdapter adapter;
-    List<StatEntryContract> list = new ArrayList<>();
+
 
     static GameManager manager;
     AlertDialog.Builder adb;
-    //ArrayList<Plate> plates = new ArrayList<>();
     private Plate[][] plates;
-    final String TAG = "Def";
+    final String TAG = "States";
     final String DB_TAG = "Datebase";
     long MillisecondTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
@@ -75,7 +72,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         width = (int) (pixel * density);
         height = (int) (pixel * density);
         newgame = false;
-        //adapter = new DataBaseAdapter(this);
 
         steps = (TextView) findViewById(R.id.steps);
         time = (TextView) findViewById(R.id.time);
@@ -99,6 +95,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //manager.setGame(true);
         addButtons();
         handler = new Handler();
+        //manager.getDb().getEntries("cache");
        // adapter.dataBase();
         Log.d(TAG, "GameActivity: onCreate()");
     }
@@ -145,12 +142,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             handler.removeCallbacks(timer);
             games++;
             newgame = true;
+            manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS cache");
+            manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS game");
+            manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS value");
             //onCreateDialog(1);
             showDialog(DIALOG_EXIT);
         }
 //        manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null),"CREATE TABLE cache(first INTEGER PRIMARY KEY, two INTEGER, three INTEGER, four INTEGER )");
         //manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE cache");
-        manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null),"CREATE TABLE IF NOT EXISTS cache(first INTEGER, two INTEGER, three INTEGER, four INTEGER )");
 
     }
 
@@ -161,7 +160,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 if(manager.isGame()){
                     moveTaskToBack(true);
                     intent.putExtra("game", manager.isGame());
-                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
                 }else{
                     intent.putExtra("new game", true);
@@ -202,6 +200,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 gameStarted = false;
                 play = false;
                 gamePaused = false;
+                manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS cache");
+
                 recreate();
                 //Toast.makeText(getApplicationContext(), "Restart", Toast.LENGTH_SHORT).show();
                 break;

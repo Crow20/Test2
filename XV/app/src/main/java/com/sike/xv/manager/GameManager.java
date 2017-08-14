@@ -3,14 +3,21 @@ package com.sike.xv.manager;
 import android.animation.ObjectAnimator;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.view.View;
 
+import com.sike.xv.GameActivity;
 import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.engine.Plate;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by agritsenko on 25.07.2017.
@@ -24,7 +31,6 @@ public class GameManager {
     protected int[] coorX = {ColumnEnum.FIRST_COLUMN.getValue(), ColumnEnum.SECOND_COLUMN.getValue(), ColumnEnum.THIRD_COLUMN.getValue(), ColumnEnum.FOURTH_COLUMN.getValue()};
     protected int[] coorY = {RowEnum.FIRST_ROW.getValue(), RowEnum.SECOND_ROW.getValue(), RowEnum.THIRD_ROW.getValue(), RowEnum.FOURTH_ROW.getValue()};
     private boolean isGame = false;
-    private boolean cached = true;
     protected int [][] arrPlates = new int[4][4];
     private static int [][] defPlates = {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 0}};
     int [][] platesNum = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 0, 15}};
@@ -35,6 +41,7 @@ public class GameManager {
     private int y;
     protected int countSteps = 0;
     protected static StatReaderDbHelper db;
+    List<int [][]> tmpList1 = new ArrayList<>();
 
     public Plate[][] setTestFields(Context ctx, int [][] numbers){
         for(int i = 0; i < 4; i++){
@@ -70,18 +77,37 @@ public class GameManager {
                 arrPlates[i][j] = plates[i][j].getNumber();
             }
         }
-
-        for(int i = 0; i < 4 && cached; i++){
-            ContentValues values = new ContentValues();
-            values.put("first", arrPlates[i][0]);
-            values.put("two", arrPlates[i][1]);
-            values.put("three", arrPlates[i][2]);
-            values.put("four", arrPlates[i][3]);
-            db.getWritableDatabase().insert("cache", null, values);
-            db.getWritableDatabase().close();
-
+        if(!(checkGameState("cache"))){
+            db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS cache");
+            db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS game");
+            db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS game(first INTEGER, two INTEGER, three INTEGER, four INTEGER)");
+            for(int i = 0; i < 4; i++){
+                ContentValues values = new ContentValues();
+                values.put("first", arrPlates[i][0]);
+                values.put("two", arrPlates[i][1]);
+                values.put("three", arrPlates[i][2]);
+                values.put("four", arrPlates[i][3]);
+                db.getWritableDatabase().insert("game", null, values);
+                db.getWritableDatabase().close();
+            }
+        }else if(checkGameState("game")){
+            int i = 0;
+            int j = 0;
+            //tmpList1 = db.getEntries("cache");
+            arrPlates = db.getEntries("cache").get(0);
+            for(Plate[] pl:plates){
+                for(Plate obj:pl){
+                    if(j == 4) j = 0;
+                    obj.setNumber(arrPlates[i][j]);
+                    if(j < 4 ) j++;
+                }
+                if(i < 3){
+                    i++;
+                }else {
+                    break;
+                }
+            }
         }
-        this.cached = false;
         return plates;
     }
 
@@ -187,7 +213,10 @@ public class GameManager {
         setX(px0);
         setY(py0);
         Log.d("Move", " Move="+String.valueOf(res));
-        if(res)countSteps++;
+        if(res){
+            countSteps++;
+            updateCacheGame();
+        }
         return res;
     }
 
@@ -229,13 +258,66 @@ public class GameManager {
         return res;
     }
 
-    public void saveGameState(ArrayList<Plate> startState){
-        curstate = new ArrayList<>();
-        curstate = startState;
+    public void updateCacheGame(){
+        db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS cache");
+        for(int i = 0; i < 4; i++){
+            db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS cache(first INTEGER, two INTEGER, three INTEGER, four INTEGER, cached BOOLEAN)");
+            ContentValues values = new ContentValues();
+            values.put("first", arrPlates[i][0]);
+            values.put("two", arrPlates[i][1]);
+            values.put("three", arrPlates[i][2]);
+            values.put("four", arrPlates[i][3]);
+            values.put("cached", true);
+            db.getWritableDatabase().insert("cache", null, values);
+            db.getWritableDatabase().close();
+        }
+        db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS value(time TEXT, steps INTEGER)");
+        ContentValues values = new ContentValues();
+
+//        int i = 0;
+//        int j = 0;
+//        String columnIndex = null;
+//        for(; i < 4; i++){
+//            for(; j < 4; j++){
+//                if(arrPlates[i][j] == 0) break;
+//            }
+//        }
+//        switch (j){
+//            case 0:
+//                columnIndex = "one";
+//                break;
+//            case 1:
+//                columnIndex = "two";
+//                break;
+//            case 2:
+//                columnIndex = "three";
+//                break;
+//            case 3:
+//                columnIndex = "four";
+//                break;
+//        }
+//        String sqlQuery = "UPDATE sache SET "+columnIndex+"="+arrPlates[getX()][getY()]+" WHERE rowid="+getY();
+//        db.getWritableDatabase().execSQL(sqlQuery);
+//        sqlQuery = "UPDATE sache SET "+columnIndex+"="+arrPlates[getX()][getY()]+" WHERE rowid="+getY();
+//        db.getWritableDatabase().execSQL(sqlQuery);
     }
 
-    public void timer(){
+    public boolean checkGameState(String tableName){
 
+        SQLiteDatabase db = getDb().getWritableDatabase();
+        if (tableName == null || db == null)
+        {
+            return false;
+        }
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
+        if (!cursor.moveToFirst())
+        {
+            cursor.close();
+            return false;
+        }
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count > 0;
     }
 
     public void createDB(Context ctx){
@@ -265,14 +347,6 @@ public class GameManager {
 
     public void setGame(boolean game) {
         isGame = game;
-    }
-
-    public void setX0(int x0) {
-        this.x0 = x0;
-    }
-
-    public void setY0(int y0) {
-        this.y0 = y0;
     }
 
     public int getX() {

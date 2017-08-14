@@ -2,6 +2,8 @@ package com.sike.xv;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.sike.xv.database.StatReaderDbHelper;
+import com.sike.xv.manager.GameManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -20,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button exit;
     Intent intent;
     StatReaderDbHelper db;
+    GameManager manager;
     boolean exitApp = false;
 
     final String TAG = "States";
@@ -45,6 +49,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         db = new StatReaderDbHelper(this);
+        manager = new GameManager();
+        if(checkGameState("cache")){
+            start.setText("Продолжить");
+        }else{
+            start.setText("Начать игру");
+        }
         //db.
 
         Log.d(TAG, "MainActivity: onCreate()");
@@ -93,6 +103,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public boolean checkGameState(String tableName){
+        SQLiteDatabase db = getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null);
+        if (tableName == null || db == null)
+        {
+            return false;
+        }
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
+        if (!cursor.moveToFirst())
+        {
+            cursor.close();
+            return false;
+        }
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count > 0;
+    }
+
 
     @Override
     protected void onStart() {
@@ -111,9 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        android.os.Process.killProcess(android.os.Process.myPid());
         Log.d(TAG, "MainActivity: onDestroy()");
-
     }
 
     @Override
@@ -131,6 +156,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStop() {
         super.onStop();
+        if(exitApp){
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
         Log.d(TAG, "MainActivity: onStop()");
     }
 
