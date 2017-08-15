@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.sike.xv.database.StatEntryContract;
 import com.sike.xv.database.StatReaderDbHelper;
@@ -59,9 +60,9 @@ class Griadapter extends BaseAdapter{
 
     Context ctx;
     LayoutInflater Inflater;
-    ArrayList<Button> objects;
+    ArrayList<ImageButton> objects;
 
-    Griadapter(Context context, ArrayList<Button> list ){
+    Griadapter(Context context, ArrayList<ImageButton> list ){
         ctx=context;
         objects = list;
         Inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -73,7 +74,7 @@ class Griadapter extends BaseAdapter{
     }
 
     @Override
-    public Button getItem(int position) {
+    public ImageButton getItem(int position) {
         return objects.get(position);
     }
 
