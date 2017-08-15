@@ -56,39 +56,3 @@ public class SettingsActivity extends AppCompatActivity {
     }
 }
 
-class Griadapter extends BaseAdapter{
-
-    Context ctx;
-    LayoutInflater Inflater;
-    ArrayList<ImageButton> objects;
-
-    Griadapter(Context context, ArrayList<ImageButton> list ){
-        ctx=context;
-        objects = list;
-        Inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    @Override
-    public int getCount() {
-        return objects.size();
-    }
-
-    @Override
-    public ImageButton getItem(int position) {
-        return objects.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View view = convertView;
-        if (view == null) {
-            view = Inflater.inflate(R.layout.item, parent, false);
-        }
-        return view;
-    }
-}
