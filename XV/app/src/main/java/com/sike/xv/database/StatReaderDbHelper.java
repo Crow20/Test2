@@ -94,15 +94,16 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         return statEntryContractList;
     }
 
-    public int updateEntry(StatEntryContract entryContract){
+    public int updateEntry(String table, String []params, ArrayList<Integer> list, String args){
         SQLiteDatabase db = this.getWritableDatabase();
-
+        int i = 0;
         ContentValues values = new ContentValues();
-        values.put(KEY_TIME, entryContract.get_time());
-        values.put(KEY_STEPS, entryContract.get_steps());
-
-        return db.update(TABLE_STAT, values, KEY_ID + " = ?",
-                new String[] { String.valueOf(entryContract.get_id()) });
+       for(String par:params){
+           values.put(par, list.get(i));
+           i++;
+       }
+        return db.update(table, values, KEY_ID + " = ?",
+                new String[] { args });
     }
 
     public void deleteEnrty(StatEntryContract entryContract){
