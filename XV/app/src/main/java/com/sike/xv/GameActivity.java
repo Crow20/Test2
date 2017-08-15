@@ -3,7 +3,9 @@ package com.sike.xv;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -94,6 +96,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //manager.saveGameState(plates);
         //manager.setGame(true);
         addButtons();
+//        setFonts();
         handler = new Handler();
         //manager.getDb().getEntries("cache");
        // adapter.dataBase();
@@ -105,6 +108,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 for (int j = 0; j < 4; j++) {
                     plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int)(coorX[j] * density), (int) (coorY[i] * density)));
                     plates[i][j].getBtn().setText(String.valueOf(plates[i][j].getNumber()));
+                    plates[i][j].getBtn().setBackgroundColor(getResources().getColor(R.color.colorButton));
+                    plates[i][j].getBtn().getBackground().setAlpha(64);
+                    plates[i][j].getBtn().setTextColor(Color.WHITE);
                     plates[i][j].getBtn().setTextSize(9*density);
                     //plates[i][j].getBtn().setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
                     plates[i][j].getBtn().setOnClickListener(this);
@@ -256,6 +262,25 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+    private void setFonts(){
+        int color = 0;
+        SQLiteDatabase db = manager.getDb().getWritableDatabase();
+        Cursor cursor = db.query("settings", new String[] { "id",
+                        "number", "level" }, "id" + "=?",
+                new String[] { "color" }, null, null, null, null);
+        if (cursor != null)
+            cursor.moveToFirst();
+        color = Integer.parseInt(cursor.getString(1));
+        absoluteLayout.setBackground(getResources().getDrawable(getResources().getIdentifier("font_"+color, "drawable", this.getPackageName())));
+//        ArrayList<View> list = new ArrayList<>();
+//        for(int i = 0; i < absoluteLayout.getChildCount();i++){
+//            list.add(absoluteLayout.getChildAt(i));
+//        }
+//        for(View v:list){
+//            v.setBackground(getResources().getDrawable(getResources().getIdentifier("color_"+color, "drawable", this.getPackageName())));
+//        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -267,6 +292,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if(newgame){
             recreate();
         }
+        setFonts();
         Log.d(TAG, "GameActivity: onStart()");
     }
 
