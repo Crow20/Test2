@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
 
 import com.sike.xv.database.StatEntryContract;
 import com.sike.xv.database.StatReaderDbHelper;
@@ -23,11 +28,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SettingsActivity extends AppCompatActivity implements View.OnClickListener{
+public class SettingsActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener{
 
     Toolbar toolbar;
     Button menuSet;
     StatReaderDbHelper db;
+    RadioGroup soundChooser;
+    SeekBar seekBar;
+    Button soundOff;
+
+    int level;
+    boolean clicked = false;
+    private final String TAG = "SettingsStates";
 
     public static final int color1=0x7f0b0086;
     public static final int color10=0x7f0b008f;
@@ -52,6 +64,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         menuSet = (Button) findViewById(R.id.menu_settings);
         final Intent intent = new Intent(this, MainActivity.class);
         db = new StatReaderDbHelper(this);
+
         //db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS settings");
         //db.executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "CREATE TABLE IF NOT EXISTS settings ( id TEXT PRIMARY KEY, number INTEGER, level INTEGER)");
         //db.addEntryToTable(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "INSERT INTO settings VALUES" +"("+"'"+"1"+"', "+"1, 100)");
@@ -60,6 +73,26 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             public void onClick(View v) {
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
+            }
+        });
+        soundChooser = (RadioGroup) findViewById(R.id.sound_chooser);
+        soundChooser.setOnCheckedChangeListener(this);
+        seekBar = (SeekBar) findViewById(R.id.soundLevel);
+        seekBar.setOnSeekBarChangeListener(this);
+        soundOff = (Button) findViewById(R.id.soundOff);
+        soundOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<Integer> list = getAllEntries();
+                if(clicked){
+                    soundOff.setBackground(getResources().getDrawable(R.drawable.ic_volume_up_black_36dp));
+                    seekBar.setProgress(list.get(3));
+                    clicked = false;
+                }else{
+                    soundOff.setBackground(getResources().getDrawable(R.drawable.ic_volume_off_black_36dp));
+                    seekBar.setProgress(0);
+                    clicked = true;
+                }
             }
         });
         if(!(checkSettingsState("game")) && !(checkSettingsState("settings"))){
@@ -80,6 +113,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
 //        addSettings();
 //        getAllEntries();
+        Log.d(TAG, "SettingsActivity: onCreate()");
     }
 
     @Override
@@ -122,6 +156,52 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 12 WHERE id = "+"'"+"color"+"'");
                 break;
         }
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+        switch (checkedId){
+            case R.id.sound1:
+                db.getWritableDatabase().execSQL("UPDATE settings SET number = 1 WHERE id = "+"'"+"sound"+"'");
+                break;
+            case R.id.sound2:
+                db.getWritableDatabase().execSQL("UPDATE settings SET number = 2 WHERE id = "+"'"+"sound"+"'");
+                break;
+            case R.id.sound3:
+                db.getWritableDatabase().execSQL("UPDATE settings SET number = 3 WHERE id = "+"'"+"sound"+"'");
+                break;
+            case R.id.sound4:
+                db.getWritableDatabase().execSQL("UPDATE settings SET number = 4 WHERE id = "+"'"+"sound"+"'");
+                break;
+            case R.id.sound5:
+                db.getWritableDatabase().execSQL("UPDATE settings SET number = 5 WHERE id = "+"'"+"sound"+"'");
+                break;
+        }
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        ArrayList<Integer> list = getAllEntries();
+        if(seekBar.getProgress() != list.get(3)){
+            level = seekBar.getProgress();
+            if(level != 0 && !(clicked)){
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = "+seekBar.getProgress()+" WHERE id = "+"'"+"sound"+"'");
+            }else if(level == 0){
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = "+seekBar.getProgress()+" WHERE id = "+"'"+"sound"+"'");
+            }
+
+        }
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        clicked = false;
+        soundOff.setBackground(getResources().getDrawable(R.drawable.ic_volume_up_black_36dp));
     }
 
     public void addSettings(){
@@ -176,8 +256,51 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         return list;
     }
 
-    public void updateSettings(String id){
+    public void updateSettings(){
+        ArrayList<Integer> list = getAllEntries();
+        RadioButton b = (RadioButton)findViewById(getResources().getIdentifier("sound"+list.get(2), "id", this.getPackageName()));
+        b.setChecked(true);
+        if(list.get(3) != 0){
+            seekBar.setProgress(list.get(3));
+        }else{
+            clicked = true;
+            soundOff.setBackground(getResources().getDrawable(R.drawable.ic_volume_off_black_36dp));
+            seekBar.setProgress(0);
+        }
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateSettings();
+        Log.d(TAG, "SettingsActivity: onStart()");
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "SettingsActivity: onDestroy()");
+        super.onDestroy();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "SettingsActivity: onResume()");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "SettingsActivity: onPause()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "SettingsActivity: onStop()");
     }
 
 

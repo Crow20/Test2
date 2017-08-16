@@ -271,8 +271,8 @@ public class GameManager {
             db.getWritableDatabase().insert("cache", null, values);
             db.getWritableDatabase().close();
         }
-        db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS value(time TEXT, steps INTEGER)");
-        ContentValues values = new ContentValues();
+        db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS value(time REAL, steps INTEGER)");
+
 
 //        int i = 0;
 //        int j = 0;
