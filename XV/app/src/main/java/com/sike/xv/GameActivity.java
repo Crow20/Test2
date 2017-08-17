@@ -118,6 +118,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         //manager.getDb().getEntries("cache");
        // adapter.dataBase();
+        getLastTime();
         Log.d(TAG, "GameActivity: onCreate()");
     }
 
