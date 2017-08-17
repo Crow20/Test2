@@ -41,18 +41,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     boolean clicked = false;
     private final String TAG = "SettingsStates";
 
-    public static final int color1=0x7f0b0086;
-    public static final int color10=0x7f0b008f;
-    public static final int color11=0x7f0b0090;
-    public static final int color12=0x7f0b0091;
-    public static final int color2=0x7f0b0087;
-    public static final int color3=0x7f0b0088;
-    public static final int color4=0x7f0b0089;
-    public static final int color5=0x7f0b008a;
-    public static final int color6=0x7f0b008b;
-    public static final int color7=0x7f0b008c;
-    public static final int color8=0x7f0b008d;
-    public static final int color9=0x7f0b008e;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +83,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
         });
-        if(!(checkSettingsState("game")) && !(checkSettingsState("settings"))){
+        if(!(checkSettingsState("settings"))){
             db.executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "CREATE TABLE IF NOT EXISTS settings ( id TEXT PRIMARY KEY, number INTEGER, level INTEGER)");
             ContentValues value = new ContentValues();
             value.put("number", 12);
@@ -108,8 +96,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             value1.put("id", "sound");
             db.getWritableDatabase().insert("settings", null, value1);
             db.close();
-        }else if(checkSettingsState("settings") && settingsChange()){
-
         }
 //        addSettings();
 //        getAllEntries();
@@ -119,40 +105,40 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case color1:
+            case R.id.color1:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 1 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color2:
+            case R.id.color2:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 2 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color3:
+            case R.id.color3:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 3 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color4:
+            case R.id.color4:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 4 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color5:
+            case R.id.color5:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 5 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color6:
+            case R.id.color6:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 6 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color7:
+            case R.id.color7:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 7 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color8:
+            case R.id.color8:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 8 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color9:
+            case R.id.color9:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 9 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color10:
+            case R.id.color10:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 10 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color11:
+            case R.id.color11:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 11 WHERE id = "+"'"+"color"+"'");
                 break;
-            case color12:
+            case R.id.color12:
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 12 WHERE id = "+"'"+"color"+"'");
                 break;
         }

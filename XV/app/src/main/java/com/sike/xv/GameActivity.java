@@ -6,7 +6,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static android.R.attr.bitmap;
 
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
@@ -114,7 +126,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 for (int j = 0; j < 4; j++) {
                     plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int)(coorX[j] * density), (int) (coorY[i] * density)));
                     plates[i][j].getBtn().setText(String.valueOf(plates[i][j].getNumber()));
-                    plates[i][j].getBtn().setBackgroundColor(getResources().getColor(R.color.colorButton));
+                    plates[i][j].getBtn().setBackground(getResources().getDrawable(R.drawable.button));
                     plates[i][j].getBtn().getBackground().setAlpha(64);
                     plates[i][j].getBtn().setTextColor(Color.WHITE);
                     plates[i][j].getBtn().setTextSize(9*density);
@@ -295,7 +307,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if(color == 12){
                 absoluteLayout.setBackground(getResources().getDrawable(R.drawable.rounded_corner));
             }else{
-                absoluteLayout.setBackground(getResources().getDrawable(getResources().getIdentifier("font_"+color, "drawable", this.getPackageName())));
+                absoluteLayout.setBackground(getResources().getDrawable(getResources().getIdentifier("font_" + color, "drawable", this.getPackageName())));
+                //absoluteLayout.setBackground(new BitmapDrawable(getRoundedCornerBitmap(getResources().getDrawable(getResources().getIdentifier("font_" + color, "drawable", this.getPackageName())))));
             }
         }
     }
@@ -314,7 +327,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             sound = Integer.parseInt(cursor.getString(1));
             level = Integer.parseInt(cursor.getString(2));
             mp = MediaPlayer.create(this, getResources().getIdentifier("sound_"+sound, "raw", this.getPackageName()));
-            mp.setVolume((float)1-level ,(float)1-level);
+            mp.setVolume(level ,level);
         }
     }
 
@@ -367,6 +380,38 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         int count = cursor.getInt(0);
         cursor.close();
         return count > 0;
+    }
+
+    public static Bitmap getRoundedCornerBitmap(Drawable font) {
+        Bitmap bitmap = null;
+
+//        if (font instanceof BitmapDrawable) {
+//            BitmapDrawable bitmapDrawable = (BitmapDrawable) font;
+//        }
+
+        if(font.getIntrinsicWidth() <= 0 || font.getIntrinsicHeight() <= 0) {
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+        } else {
+            bitmap = Bitmap.createBitmap(font.getIntrinsicWidth(), font.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        }
+        Bitmap output = bitmap;
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        final RectF rectF = new RectF(rect);
+        final float roundPx = 12;
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+
+        return output;
     }
 
     @Override
