@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.manager.GameManager;
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button stat;
     Button pref;
     Button exit;
+    Button info;
     Intent intent;
     StatReaderDbHelper db;
     GameManager manager;
@@ -38,11 +41,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         stat = (Button) findViewById(R.id.stat);
         pref = (Button) findViewById(R.id.pref);
         exit = (Button) findViewById(R.id.exit);
+        info = (Button) findViewById(R.id.info);
 
         exit.setOnClickListener(this);
         pref.setOnClickListener(this);
         start.setOnClickListener(this);
         stat.setOnClickListener(this);
+        info.setOnClickListener(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -99,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         })
                         .create();
                 dialog.show();
+                break;
+            case R.id.info:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://sike.studio/")));
                 break;
         }
     }

@@ -272,34 +272,6 @@ public class GameManager {
             db.getWritableDatabase().close();
         }
         db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS value(time REAL, steps INTEGER)");
-
-
-//        int i = 0;
-//        int j = 0;
-//        String columnIndex = null;
-//        for(; i < 4; i++){
-//            for(; j < 4; j++){
-//                if(arrPlates[i][j] == 0) break;
-//            }
-//        }
-//        switch (j){
-//            case 0:
-//                columnIndex = "one";
-//                break;
-//            case 1:
-//                columnIndex = "two";
-//                break;
-//            case 2:
-//                columnIndex = "three";
-//                break;
-//            case 3:
-//                columnIndex = "four";
-//                break;
-//        }
-//        String sqlQuery = "UPDATE sache SET "+columnIndex+"="+arrPlates[getX()][getY()]+" WHERE rowid="+getY();
-//        db.getWritableDatabase().execSQL(sqlQuery);
-//        sqlQuery = "UPDATE sache SET "+columnIndex+"="+arrPlates[getX()][getY()]+" WHERE rowid="+getY();
-//        db.getWritableDatabase().execSQL(sqlQuery);
     }
 
     public boolean checkGameState(String tableName){
@@ -337,9 +309,6 @@ public class GameManager {
         return countSteps;
     }
 
-//    public ArrayList<Plate> getCurstate() {
-//        return curstate;
-//    }
 
     public boolean isGame() {
         return isGame;
@@ -367,5 +336,9 @@ public class GameManager {
 
     public Direction getDir() {
         return dir;
+    }
+
+    public void setCountSteps(int countSteps) {
+        this.countSteps = countSteps;
     }
 }

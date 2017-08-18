@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,7 +14,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -31,11 +29,8 @@ import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.sike.xv.database.DataBaseAdapter;
 import com.sike.xv.database.StatEntryContract;
-import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.engine.Plate;
 import com.sike.xv.manager.ColumnEnum;
 import com.sike.xv.manager.GameManager;
@@ -45,8 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static android.R.attr.bitmap;
 
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
@@ -66,6 +59,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Button menuGame;
     Button pause;
     Button start;
+    Button sound;
     MediaPlayer mp;
 
 
@@ -77,11 +71,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     long MillisecondTime, TimeBuff, UpdateTime = 0L ;
     Handler handler;
     int Seconds, Minutes, MilliSeconds ;
-    private long mTime = 0L;
+    long mTime = 0L;
     static boolean gamePaused ,gameStarted ,play ,newgame= false;
     boolean off = false;
+    int volume;
     final int DIALOG_EXIT = 1;
     int games = 1;
+    ArrayList<Integer> settimgsTmp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +95,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         pausePic = (ImageView) findViewById(R.id.pausePic);
         start = (Button) findViewById(R.id.start);
         best_time = (TextView) findViewById(R.id.best_time);
+        sound = (Button) findViewById(R.id.sound);
         absoluteLayout = (AbsoluteLayout) findViewById(R.id.absoluteLayout);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_game);
@@ -118,7 +115,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         //manager.getDb().getEntries("cache");
        // adapter.dataBase();
-        getLastTime();
+        if(checkState("value")&&checkState("cache")){
+            getLastTime();
+        }
         Log.d(TAG, "GameActivity: onCreate()");
     }
 
@@ -149,7 +148,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (manager.move(v.getX(), v.getY(), density) && manager.isGame()) {
             steps.setText(String.valueOf(manager.getCountSteps()));
             manager.buttonAnimator(v, v.getX(), coorX[manager.getX()] * density, v.getY(), coorY[manager.getY()] * density, manager.getDir());
-            if(!(off)){
+            //manager.getDb().getWritableDatabase().execSQL("UPDATE ");
+            if(settimgsTmp.get(1) != 0){
                 mp.start();
                 if(mp.isPlaying()){
                     mp.seekTo(0);
@@ -196,14 +196,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     intent.putExtra("new game", true);
                     startActivity(intent);
                 }
+                //startActivity(intent);
                 break;
             case R.id.sound:
-                if(!(off)){
+                if(settimgsTmp.get(1) == 0){
                     v.setBackground(getResources().getDrawable(R.drawable.ic_volume_up_black_36dp));
-                    off = true;
+                    settimgsTmp.set(1, 50);
+                    mp = MediaPlayer.create(this, getResources().getIdentifier("sound_"+settimgsTmp.get(0), "raw", this.getPackageName()));
+                    mp.setVolume((float) settimgsTmp.get(1)/100 ,(float) settimgsTmp.get(1)/100);
                 }else{
                     v.setBackground(getResources().getDrawable(R.drawable.ic_volume_off_black_36dp));
-                    off = false;
+                    settimgsTmp.set(1, 0);
                 }
                 break;
             case R.id.pause:
@@ -314,9 +317,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void setVolume(int volume){
+        manager.getDb().getWritableDatabase().execSQL("UPDATE settings SET level = "+volume+" WHERE id = sound");
+        //manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = "+volume+" WHERE id = sound");
+    }
+
     private void setSounds(){
         int sound = 0;
         int level = 0;
+        settimgsTmp = new ArrayList<>();
         mp = new MediaPlayer();
         if(checkState("settings")){
             SQLiteDatabase db = manager.getDb().getWritableDatabase();
@@ -327,8 +336,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 cursor.moveToFirst();
             sound = Integer.parseInt(cursor.getString(1));
             level = Integer.parseInt(cursor.getString(2));
+            settimgsTmp.add(sound);
+            settimgsTmp.add(level);
             mp = MediaPlayer.create(this, getResources().getIdentifier("sound_"+sound, "raw", this.getPackageName()));
-            mp.setVolume(level ,level);
+            mp.setVolume((float) level/100 ,(float) level/100);
+            if(level == 0){
+                this.sound.setBackground(getResources().getDrawable(R.drawable.ic_volume_off_black_36dp));
+            }else{
+                this.sound.setBackground(getResources().getDrawable(R.drawable.ic_volume_up_black_36dp));
+            }
         }
     }
 
@@ -363,6 +379,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             Seconds = Seconds % 60;
             time.setText("" + Minutes + ":"
                     + String.format("%02d", Seconds));
+            manager.setCountSteps(Integer.parseInt(cursor.getString(1)));
         }
     }
 
@@ -456,15 +473,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         values.put("steps", manager.getCountSteps());
         manager.getDb().getWritableDatabase().insert("value", null, values);
         manager.getDb().getWritableDatabase().close();
+        manager.getDb().getWritableDatabase().execSQL("UPDATE settings SET level = "+settimgsTmp.get(1)+" WHERE id = "+"'"+"sound"+"'");
         super.onStop();
         Log.d(TAG, "GameActivity: onStop()");
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "GameActivity: onDestroy()");
         super.onDestroy();
         App.gameActivity = null;
-        Log.d(TAG, "GameActivity: onDestroy()");
     }
 
     @Override

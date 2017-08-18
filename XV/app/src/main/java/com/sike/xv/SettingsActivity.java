@@ -1,7 +1,6 @@
 package com.sike.xv;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,22 +10,16 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 
-import com.sike.xv.database.StatEntryContract;
 import com.sike.xv.database.StatReaderDbHelper;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener{
 
@@ -40,6 +33,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     int level;
     boolean clicked = false;
     private final String TAG = "SettingsStates";
+    private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.8F);
 
 
     @Override
@@ -67,7 +61,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         soundChooser.setOnCheckedChangeListener(this);
         seekBar = (SeekBar) findViewById(R.id.soundLevel);
         seekBar.setOnSeekBarChangeListener(this);
-        soundOff = (Button) findViewById(R.id.soundOff);
+        soundOff = (Button) findViewById(R.id.sound);
         soundOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,6 +91,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             db.getWritableDatabase().insert("settings", null, value1);
             db.close();
         }
+        buttonClick.setDuration(500L);
 //        addSettings();
 //        getAllEntries();
         Log.d(TAG, "SettingsActivity: onCreate()");
@@ -105,40 +100,53 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            //v.startAnimation(buttonClick);
             case R.id.color1:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 1 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color2:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 2 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color3:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 3 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color4:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 4 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color5:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 5 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color6:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 6 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color7:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 7 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color8:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 8 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color9:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 9 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color10:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 10 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color11:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 11 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color12:
+                v.startAnimation(buttonClick);
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 12 WHERE id = "+"'"+"color"+"'");
                 break;
         }
@@ -181,7 +189,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
+        if(seekBar.getProgress() == 0){
+            clicked = true;
+            soundOff.setBackground(getResources().getDrawable(R.drawable.ic_volume_off_black_36dp));
+        }
     }
 
     @Override
