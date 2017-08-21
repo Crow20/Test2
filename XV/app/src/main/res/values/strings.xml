@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">XV</string>
     <string name="yes">Ок</string>
+    <string name="best_time">Лучшее время: </string>
 </resources>

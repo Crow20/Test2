@@ -67,14 +67,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     AlertDialog.Builder adb;
     private Plate[][] plates;
     final String TAG = "States";
-    final String DB_TAG = "Datebase";
-    long MillisecondTime, TimeBuff, UpdateTime = 0L ;
+    long MillisecondTime = 0L ;
     Handler handler;
-    int Seconds, Minutes, MilliSeconds ;
+    int Seconds, Minutes;
     long mTime = 0L;
     static boolean gamePaused ,gameStarted ,play ,newgame= false;
-    boolean off = false;
-    int volume;
     final int DIALOG_EXIT = 1;
     int games = 1;
     ArrayList<Integer> settimgsTmp;
@@ -104,17 +101,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         manager = new GameManager();
         manager.createDB(this);
-        //plates = manager.setTestFields(this, manager.getPlatesNum());
         adb = new AlertDialog.Builder(this);
         plates = manager.setFields(this, manager.getPlatesNum());
-        //manager.saveGameState(plates);
-        //manager.setGame(true);
         addButtons();
-//        setFonts();
         handler = new Handler();
-
-        //manager.getDb().getEntries("cache");
-       // adapter.dataBase();
         if(checkState("value")&&checkState("cache")){
             getLastTime();
         }
@@ -130,9 +120,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     plates[i][j].getBtn().getBackground().setAlpha(64);
                     plates[i][j].getBtn().setTextColor(Color.WHITE);
                     plates[i][j].getBtn().setTextSize(9*density);
-                    //plates[i][j].getBtn().setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
                     plates[i][j].getBtn().setOnClickListener(this);
-                    //absoluteLayout.addView(plates[i][j].getBtn());
                     if(plates[i][j].getNumber() != 0){
                         absoluteLayout.addView(plates[i][j].getBtn());
                     }
@@ -144,11 +132,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         manager.setGame(true);
-        //Log.d(TAG, "manager.isGame()"+manager.isGame());
         if (manager.move(v.getX(), v.getY(), density) && manager.isGame()) {
             steps.setText(String.valueOf(manager.getCountSteps()));
             manager.buttonAnimator(v, v.getX(), coorX[manager.getX()] * density, v.getY(), coorY[manager.getY()] * density, manager.getDir());
-            //manager.getDb().getWritableDatabase().execSQL("UPDATE ");
             if(settimgsTmp.get(1) != 0){
                 mp.start();
                 if(mp.isPlaying()){
@@ -160,11 +146,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 handler.removeCallbacks(timer);
                 handler.postDelayed(timer, 0);
             }
-//            if(inst == -1){
-//                StartTime = SystemClock.uptimeMillis();
-//                handler.postDelayed(timer, 0);
-//                //handler.runAfterDelay(timer, 0);
-//            }
+
         }
         if(manager.checkGameOver()){
             //timerStopped = true;
@@ -176,7 +158,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS cache");
             manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS game");
             manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS value");
-            //onCreateDialog(1);
             showDialog(DIALOG_EXIT);
         }
 //        manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null),"CREATE TABLE cache(first INTEGER PRIMARY KEY, two INTEGER, three INTEGER, four INTEGER )");
@@ -188,14 +169,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()){
             case R.id.menuGame:
                 Intent intent = new Intent(this, MainActivity.class);
-                if(manager.isGame()){
-                    moveTaskToBack(true);
-                    intent.putExtra("game", manager.isGame());
-                    startActivity(intent);
-                }else{
-                    intent.putExtra("new game", true);
-                    startActivity(intent);
-                }
+                startActivity(intent);
+//                if(manager.isGame()){
+//                    moveTaskToBack(true);
+//                    intent.putExtra("game", manager.isGame());
+//                    startActivity(intent);
+//                }else{
+//                    intent.putExtra("new game", true);
+//                    startActivity(intent);
+//                }
                 //startActivity(intent);
                 break;
             case R.id.sound:
@@ -285,15 +267,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void run() {
             final long start = mTime;
-            //Log.d(TAG, " mTime="+mTime);
+            String text;
             MillisecondTime = SystemClock.uptimeMillis() - start;
-            Log.d("Timer", " MillisecondTime="+MillisecondTime);
-//            UpdateTime = TimeBuff + MillisecondTime;
             Seconds = (int) (MillisecondTime / 1000);
             Minutes = Seconds / 60;
             Seconds = Seconds % 60;
-            time.setText("" + Minutes + ":"
-                    + String.format("%02d", Seconds));
+            text = ""+Minutes +":"+ String.format("%02d", Seconds);
+            time.setText(text);
             handler.postDelayed(this, 0);
             }
         };
@@ -357,7 +337,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     return String.valueOf(o1.get_time()).compareTo(String.valueOf(o2.get_time()));
                 }
             });
-            best_time.setText(list.get(0).get_time());
+            String text = R.string.best_time+list.get(0).get_time();
+            best_time.setText(text);
         }else{
             best_time.setVisibility(View.INVISIBLE);
         }

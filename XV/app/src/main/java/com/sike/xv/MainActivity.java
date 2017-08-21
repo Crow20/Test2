@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else{
             start.setText("Начать игру");
         }
-        //db.
 
         Log.d(TAG, "MainActivity: onCreate()");
     }

@@ -37,6 +37,17 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         String CREATE_STAT_TABLE = "CREATE TABLE "+TABLE_STAT+"("+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_TIME + " TEXT,"
                 + KEY_STEPS + " TEXT" + ")";
         db.execSQL(CREATE_STAT_TABLE);
+        db.execSQL("CREATE TABLE settings (id TEXT PRIMARY KEY, number INTEGER, level INTEGER)");
+        ContentValues value = new ContentValues();
+        value.put("number", 12);
+        value.put("level", 1);
+        value.put("id", "color");
+        db.insert("settings", null, value);
+        ContentValues value1 = new ContentValues();
+        value1.put("number", 1);
+        value1.put("level", 50);
+        value1.put("id", "sound");
+        db.insert("settings", null, value1);
     }
 
     @Override
