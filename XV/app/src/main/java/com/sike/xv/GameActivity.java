@@ -36,6 +36,7 @@ import com.sike.xv.manager.ColumnEnum;
 import com.sike.xv.manager.GameManager;
 import com.sike.xv.manager.RowEnum;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -67,7 +68,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     AlertDialog.Builder adb;
     private Plate[][] plates;
     final String TAG = "States";
-    long MillisecondTime = 0L ;
+    long MillisecondTime, UpdateTime, TimeBuff = 0L ;
     Handler handler;
     int Seconds, Minutes;
     long mTime = 0L;
@@ -144,7 +145,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if(mTime == 0L){
                 mTime = SystemClock.uptimeMillis()-MillisecondTime;
                 handler.removeCallbacks(timer);
-                handler.postDelayed(timer, 0);
+                handler.postDelayed(timer, 100);
             }
 
         }
@@ -226,6 +227,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS cache");
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS value");
                 MillisecondTime = 0L;
+                System.gc();
                 recreate();
                 //Toast.makeText(getApplicationContext(), "Restart", Toast.LENGTH_SHORT).show();
                 break;
@@ -269,15 +271,25 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             final long start = mTime;
             String text;
             MillisecondTime = SystemClock.uptimeMillis() - start;
-            Seconds = (int) (MillisecondTime / 1000);
+            UpdateTime = TimeBuff + MillisecondTime;
+            Seconds = (int) (UpdateTime / 1000);
             Minutes = Seconds / 60;
             Seconds = Seconds % 60;
             text = ""+Minutes +":"+ String.format("%02d", Seconds);
             time.setText(text);
-            handler.postDelayed(this, 0);
+            handler.postDelayed(this, 100);
+
+
             }
         };
-
+    //            MillisecondTime = SystemClock.uptimeMillis() - StartTime;
+//            UpdateTime = TimeBuff + MillisecondTime;
+//            Seconds = (int) (UpdateTime / 1000);
+//            Minutes = Seconds / 60;
+//            Seconds = Seconds % 60;
+//            MilliSeconds = (int) (UpdateTime % 1000);
+//            time.setText("" + Minutes + ":"
+//                    + String.format("%02d", Seconds));
     private void setFonts(){
         int color = 0;
         if(checkState("settings")){
@@ -353,7 +365,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     new String[] { "1"}, null, null, null, null);
             if (cursor != null)
                 cursor.moveToFirst();
-            MillisecondTime = Integer.parseInt(cursor.getString(0));
+//            Double time1;
+//            time1 = Double.parseDouble(cursor.getString(0));
+            try {
+                MillisecondTime = Long.parseLong(cursor.getString(0));
+            } catch (NumberFormatException e) {
+                BigDecimal bd = new BigDecimal(cursor.getString(0));
+                MillisecondTime = bd.longValue();
+            }
+
+//            MillisecondTime = Long.parseLong(cursor.getString(0));
             steps.setText(cursor.getString(1));
             Seconds = (int) (MillisecondTime / 1000);
             Minutes = Seconds / 60;

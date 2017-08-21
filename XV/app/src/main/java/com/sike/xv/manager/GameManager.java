@@ -26,22 +26,17 @@ import static android.content.Context.MODE_PRIVATE;
 public class GameManager {
 
     protected Plate[][] plates = new Plate[4][4];
-    private ArrayList<Plate> curstate;
     protected ArrayList<Plate> tmpList = new ArrayList<>();
     protected int[] coorX = {ColumnEnum.FIRST_COLUMN.getValue(), ColumnEnum.SECOND_COLUMN.getValue(), ColumnEnum.THIRD_COLUMN.getValue(), ColumnEnum.FOURTH_COLUMN.getValue()};
     protected int[] coorY = {RowEnum.FIRST_ROW.getValue(), RowEnum.SECOND_ROW.getValue(), RowEnum.THIRD_ROW.getValue(), RowEnum.FOURTH_ROW.getValue()};
     private boolean isGame = false;
     protected int [][] arrPlates = new int[4][4];
-    private static int [][] defPlates = {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 0}};
     int [][] platesNum = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 0, 15}};
     protected Direction dir = Direction.NOTMOVE;
-    private int x0;
-    private int y0;
     private int x;
     private int y;
     protected int countSteps = 0;
-    protected static StatReaderDbHelper db;
-    List<int [][]> tmpList1 = new ArrayList<>();
+    protected StatReaderDbHelper db;
 
     public Plate[][] setTestFields(Context ctx, int [][] numbers){
         for(int i = 0; i < 4; i++){
@@ -297,12 +292,12 @@ public class GameManager {
     }
 
 
-    public static StatReaderDbHelper getDb() {
+    public StatReaderDbHelper getDb() {
         return db;
     }
 
-    public static void setDb(StatReaderDbHelper db) {
-        GameManager.db = db;
+    public void setDb(StatReaderDbHelper db) {
+        this.db = db;
     }
 
     public int getCountSteps() {
