@@ -46,10 +46,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         menuSet = (Button) findViewById(R.id.menu_settings);
         final Intent intent = new Intent(this, MainActivity.class);
         db = new StatReaderDbHelper(this);
-
-        //db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS settings");
-        //db.executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "CREATE TABLE IF NOT EXISTS settings ( id TEXT PRIMARY KEY, number INTEGER, level INTEGER)");
-        //db.addEntryToTable(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "INSERT INTO settings VALUES" +"("+"'"+"1"+"', "+"1, 100)");
         menuSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,8 +88,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             db.close();
         }
         buttonClick.setDuration(500L);
-//        addSettings();
-//        getAllEntries();
         Log.d(TAG, "SettingsActivity: onCreate()");
     }
 
@@ -174,6 +168,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    public void imageButtonOnClick(View v){
+        startActivity(new Intent("android.intent.action.CROP"));
+//        db.getWritableDatabase().execSQL("UPDATE settings SET number = 12 WHERE id = "+"'"+"color"+"'");
+//        db.getWritableDatabase().execSQL("UPDATE settings SET level = 0 WHERE id = "+"'"+"color"+"'");
+    }
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         ArrayList<Integer> list = getAllEntries();
@@ -202,12 +202,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         soundOff.setBackground(getResources().getDrawable(R.drawable.ic_volume_up_black_36dp));
     }
 
-    public void addSettings(){
-        //db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS settings");
-
-    }
-
-
     public boolean checkSettingsState(String tableName){
 
         SQLiteDatabase db = this.db.getWritableDatabase();
@@ -224,17 +218,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         int count = cursor.getInt(0);
         cursor.close();
         return count > 0;
-    }
-
-    public boolean settingsChange(){
-        ArrayList<Integer> list = getAllEntries();
-        for(Integer val:list){
-            if(val == 12 || val == 1 || val == 50){
-            }else{
-                return true;
-            }
-        }
-        return false;
     }
 
     public ArrayList<Integer> getAllEntries(){

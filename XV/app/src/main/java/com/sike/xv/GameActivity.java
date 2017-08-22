@@ -29,6 +29,7 @@ import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sike.xv.database.StatEntryContract;
 import com.sike.xv.engine.Plate;
@@ -113,21 +114,43 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     void addButtons() {
+        if (getAllEntries().get(1) == 1) {
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int)(coorX[j] * density), (int) (coorY[i] * density)));
+                    plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int) (coorX[j] * density), (int) (coorY[i] * density)));
                     plates[i][j].getBtn().setText(String.valueOf(plates[i][j].getNumber()));
                     plates[i][j].getBtn().setBackground(getResources().getDrawable(R.drawable.button));
                     plates[i][j].getBtn().getBackground().setAlpha(64);
                     plates[i][j].getBtn().setTextColor(Color.WHITE);
-                    plates[i][j].getBtn().setTextSize(9*density);
+                    plates[i][j].getBtn().setTextSize(9 * density);
                     plates[i][j].getBtn().setOnClickListener(this);
-                    if(plates[i][j].getNumber() != 0){
+                    if (plates[i][j].getNumber() != 0) {
                         absoluteLayout.addView(plates[i][j].getBtn());
                     }
                 }
             }
+        } else {
+            Toast.makeText(this, "Выбрана картинка", Toast.LENGTH_SHORT).show();
+//            for (int i = 0; i < 4; i++) {
+//                for (int j = 0; j < 4; j++) {
+//                    plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int) (coorX[j] * density), (int) (coorY[i] * density)));
+//                    plates[i][j].getBtn().setText(String.valueOf(plates[i][j].getNumber()));
+//                    plates[i][j].getBtn().setBackground(getResources().getDrawable(R.drawable.button));
+//                    plates[i][j].getBtn().getBackground().setAlpha(64);
+//                    plates[i][j].getBtn().setTextColor(Color.WHITE);
+//                    plates[i][j].getBtn().setTextSize(9 * density);
+//                    plates[i][j].getBtn().setOnClickListener(this);
+//                    if (plates[i][j].getNumber() != 0) {
+//                        absoluteLayout.addView(plates[i][j].getBtn());
+//                    }
+//                }
+//            }
         }
+    }
+
+
+
+
 
 
     @Override
@@ -226,8 +249,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 gamePaused = false;
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS cache");
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS value");
+                manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 MillisecondTime = 0L;
                 System.gc();
+
                 recreate();
                 //Toast.makeText(getApplicationContext(), "Restart", Toast.LENGTH_SHORT).show();
                 break;
@@ -402,37 +427,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return count > 0;
     }
 
-    public static Bitmap getRoundedCornerBitmap(Drawable font) {
-        Bitmap bitmap = null;
+    public ArrayList<Integer> getAllEntries(){
+        ArrayList<Integer> list = new ArrayList<>();
 
-//        if (font instanceof BitmapDrawable) {
-//            BitmapDrawable bitmapDrawable = (BitmapDrawable) font;
-//        }
+        String selectQuery = "SELECT * FROM settings";
 
-        if(font.getIntrinsicWidth() <= 0 || font.getIntrinsicHeight() <= 0) {
-            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
-        } else {
-            bitmap = Bitmap.createBitmap(font.getIntrinsicWidth(), font.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        SQLiteDatabase db = manager.getDb().getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if(cursor.moveToFirst()){
+            do{
+                list.add(Integer.parseInt(cursor.getString(1)));
+                list.add(Integer.parseInt(cursor.getString(2)));
+            }while(cursor.moveToNext());
         }
-        Bitmap output = bitmap;
-        Canvas canvas = new Canvas(output);
-
-        final int color = 0xff424242;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-        final RectF rectF = new RectF(rect);
-        final float roundPx = 12;
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-
-        return output;
+        return list;
     }
+
 
     @Override
     protected void onStart() {
