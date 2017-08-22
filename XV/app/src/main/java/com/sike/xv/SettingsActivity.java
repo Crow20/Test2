@@ -99,6 +99,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
+        setClicked(v);
         switch (v.getId()){
             //v.startAnimation(buttonClick);
             case R.id.color1:
@@ -263,6 +264,20 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             clicked = true;
             soundOff.setBackground(getResources().getDrawable(R.drawable.ic_volume_off_black_36dp));
             seekBar.setProgress(0);
+        }
+        Button btn;
+        btn = (Button)findViewById(getResources().getIdentifier("color"+list.get(0), "id", this.getPackageName()));
+        btn.setTextSize(12f);
+        btn.setHint("Выбран");
+    }
+
+    private void setClicked(View v){
+        if(!(v.equals(findViewById(getResources().getIdentifier("color"+getAllEntries().get(0), "id", this.getPackageName()))))){
+            Button btn = (Button) v;
+            btn.setTextSize(12f);
+            btn.setHint("Выбран");
+            Button tmpBtn = (Button) findViewById(getResources().getIdentifier("color"+getAllEntries().get(0), "id", this.getPackageName()));
+            tmpBtn.setHint(null);
         }
 
     }
