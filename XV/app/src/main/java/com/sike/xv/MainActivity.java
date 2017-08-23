@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         db = new StatReaderDbHelper(this);
         manager = new GameManager();
+        manager.createDB(this);
         if(checkGameState("cache")){
             start.setText("Продолжить");
         }else{

@@ -3,6 +3,7 @@ package com.sike.xv;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -44,6 +45,7 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
 
     ImageView sourceImage;
     private final int REQ_CODE_PICK_IMAGE = 2;
+
     float density = 0;
     private static final String TEMP_PHOTO_FILE = "temporary_holder.jpg";
     GameManager manager;
@@ -94,7 +96,13 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
                         String filePath = Environment.getExternalStorageDirectory()
                                 + "/" + TEMP_PHOTO_FILE;
                         Log.d("Files" ,"path: " + filePath);
+                        manager.getDb().getWritableDatabase().execSQL("DROP TABLE IF EXISTS file");
+                        manager.getDb().getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS file(id TEXT PRIMARY KEY, path TEXT)");
+                        ContentValues values = new ContentValues();
+                        values.put("id", "filepath");
+                        values.put("path", filePath);
                         manager.getDb().getWritableDatabase().insert("file", null, values);
+                        manager.getDb().close();
                         Bitmap selectedImage = BitmapFactory.decodeFile(filePath);
                         sourceImage.setImageBitmap(selectedImage);
                         //splitImage(filePath, chunkSideLength);
