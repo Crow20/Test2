@@ -19,7 +19,7 @@
 
     <Button
         android:id="@+id/menu_settings"
-        android:layout_width="48dp"
+        android:layout_width="88dp"
         android:layout_height="48dp"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
@@ -41,7 +41,7 @@
 
     <Button
         android:id="@+id/sound"
-        android:layout_width="48dp"
+        android:layout_width="88dp"
         android:layout_height="48dp"
         android:layout_marginTop="22dp"
         android:background="@drawable/ic_volume_up_black_36dp"
@@ -224,21 +224,21 @@
 
     <LinearLayout
         android:id="@+id/color_layout"
-        android:layout_width="223dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp">
+        app:layout_constraintVertical_bias="0.0">
 
         <TableRow
             android:layout_width="match_parent"
@@ -252,8 +252,10 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_1"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color2"
@@ -263,8 +265,10 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_2"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color3"
@@ -274,19 +278,22 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_3"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color4"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginBottom="5dp"
-                android:layout_marginRight="10dp"
                 android:background="@drawable/color_4"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
         </TableRow>
 
         <TableRow
@@ -301,8 +308,10 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_5"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color6"
@@ -312,8 +321,10 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_6"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color7"
@@ -323,19 +334,22 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_7"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color8"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginBottom="5dp"
-                android:layout_marginRight="10dp"
                 android:background="@drawable/color_8"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
         </TableRow>
 
         <TableRow
@@ -349,8 +363,10 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_9"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color10"
@@ -359,8 +375,10 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_10"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color11"
@@ -369,18 +387,47 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/color_11"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/color12"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginRight="10dp"
                 android:background="?attr/colorPrimaryDark"
                 android:onClick="onClick"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:text="+"
+                android:textColor="@android:color/transparent"
+                android:textColorHint="@android:color/white"
+                android:textSize="20sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="@+id/guideline2"
+            app:layout_constraintRight_toLeftOf="@+id/guideline4">
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/ic_attach_file_black_24dp"
+                android:onClick="imageButtonOnClick" />
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="Загрузить картинку"
+                android:textSize="19sp"
+                android:textStyle="bold" />
         </TableRow>
 
     </LinearLayout>
@@ -390,41 +437,17 @@
         android:layout_height="wrap_content"
         android:id="@+id/guideline2"
         app:layout_constraintGuide_begin="94dp"
-        android:orientation="vertical" />
-
-    <TableRow
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/color_layout"
-        app:layout_constraintVertical_bias="1.0"
-        app:layout_constraintRight_toLeftOf="@+id/guideline4">
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:onClick="imageButtonOnClick"
-            android:text="Button" />
-
-        <TextView
-            android:id="@+id/textView7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-    </TableRow>
+        android:orientation="vertical"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="94dp" />
 
     <android.support.constraint.Guideline
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/guideline4"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="93dp" />
+        app:layout_constraintGuide_end="93dp"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="319dp" />
 
 </android.support.constraint.ConstraintLayout>

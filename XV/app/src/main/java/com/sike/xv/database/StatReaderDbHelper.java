@@ -48,6 +48,7 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         value1.put("level", 50);
         value1.put("id", "sound");
         db.insert("settings", null, value1);
+        db.execSQL("CREATE TABLE file (id TEXT PRIMARY KEY, path TEXT)");
     }
 
     @Override

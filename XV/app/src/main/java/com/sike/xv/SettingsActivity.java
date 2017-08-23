@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -170,8 +171,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     public void imageButtonOnClick(View v){
         startActivity(new Intent("android.intent.action.CROP"));
-//        db.getWritableDatabase().execSQL("UPDATE settings SET number = 12 WHERE id = "+"'"+"color"+"'");
-//        db.getWritableDatabase().execSQL("UPDATE settings SET level = 0 WHERE id = "+"'"+"color"+"'");
+        db.getWritableDatabase().execSQL("UPDATE settings SET number = 12 WHERE id = "+"'"+"color"+"'");
+        db.getWritableDatabase().execSQL("UPDATE settings SET level = 0 WHERE id = "+"'"+"color"+"'");
     }
 
     @Override
@@ -250,17 +251,17 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
         Button btn;
         btn = (Button)findViewById(getResources().getIdentifier("color"+list.get(0), "id", this.getPackageName()));
-        btn.setTextSize(12f);
-        btn.setHint("Выбран");
+        btn.setTextColor(Color.WHITE);
+//        btn.setTextSize(20f);
+//        btn.setHint("+");
     }
 
     private void setClicked(View v){
         if(!(v.equals(findViewById(getResources().getIdentifier("color"+getAllEntries().get(0), "id", this.getPackageName()))))){
             Button btn = (Button) v;
-            btn.setTextSize(12f);
-            btn.setHint("Выбран");
+            btn.setTextColor(Color.WHITE);
             Button tmpBtn = (Button) findViewById(getResources().getIdentifier("color"+getAllEntries().get(0), "id", this.getPackageName()));
-            tmpBtn.setHint(null);
+            tmpBtn.setTextColor(getResources().getColor(android.R.color.transparent));
         }
 
     }

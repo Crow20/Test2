@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -69,6 +70,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     AlertDialog.Builder adb;
     private Plate[][] plates;
     final String TAG = "States";
+    private static final String TEMP_PHOTO_FILE = "temporary_holder.jpg";
     long MillisecondTime, UpdateTime, TimeBuff = 0L ;
     Handler handler;
     int Seconds, Minutes;
@@ -76,7 +78,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     static boolean gamePaused ,gameStarted ,play ,newgame= false;
     final int DIALOG_EXIT = 1;
     int games = 1;
+    int rows, cols;
     ArrayList<Integer> settimgsTmp;
+    ArrayList<Bitmap> chunkedImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,7 +256,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 MillisecondTime = 0L;
                 System.gc();
-
                 recreate();
                 //Toast.makeText(getApplicationContext(), "Restart", Toast.LENGTH_SHORT).show();
                 break;
@@ -442,6 +445,34 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }while(cursor.moveToNext());
         }
         return list;
+    }
+
+    private void splitImage(String path, int chunkSideLength) {
+
+        int higherChunkSide, widerChunkSide;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        rows = bitmap.getHeight() / chunkSideLength;
+        higherChunkSide = bitmap.getHeight() / rows;
+        cols = bitmap.getWidth() / chunkSideLength;
+        widerChunkSide = bitmap.getWidth() / cols;
+
+        chunkedImage = new ArrayList<Bitmap>(rows * cols);
+
+        if (higherChunkSide != chunkSideLength) {
+            if (widerChunkSide != chunkSideLength) {
+                int yCoord = 0;
+                for (int y = 0; y < rows; ++y) {
+                    int xCoord = 0;
+                    for (int x = 0; x < cols; ++x) {
+                        chunkedImage.add(Bitmap.createBitmap(bitmap, xCoord, yCoord, chunkSideLength, chunkSideLength));
+                        xCoord += chunkSideLength;
+                    }
+                    yCoord += chunkSideLength;
+                }
+            }
+        }
+        //mergeImage(chunkedImage, 350, 350);
     }
 
 
