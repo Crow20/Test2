@@ -12,14 +12,15 @@
         android:id="@+id/col1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="16dp"
         android:text="TextView"
         android:textSize="18sp"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintLeft_toLeftOf="@+id/guideline3"
         app:layout_constraintRight_toLeftOf="@+id/col2"
-        app:layout_constraintTop_toTopOf="@+id/col2" />
+        app:layout_constraintTop_toTopOf="@+id/col2"
+        android:layout_marginTop="0dp" />
 
     <TextView
         android:id="@+id/col2"

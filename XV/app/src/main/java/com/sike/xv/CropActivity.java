@@ -14,8 +14,10 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +29,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.manager.GameManager;
 
 import java.io.File;
@@ -42,15 +45,16 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
 
     Button crop;
     Button save;
-
     ImageView sourceImage;
-    private final int REQ_CODE_PICK_IMAGE = 2;
 
+    private final int REQ_CODE_PICK_IMAGE = 2;
     float density = 0;
     private static final String TEMP_PHOTO_FILE = "temporary_holder.jpg";
     GameManager manager;
+    StatReaderDbHelper db;
 
     ArrayList<Bitmap> chunkedImage;
+    Intent intent;
 
     // Number of rows and columns in chunked image
     int rows, cols;
@@ -63,14 +67,27 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
         density = this.getResources().getDisplayMetrics().density;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_crop);
-
         sourceImage = (ImageView) findViewById(R.id.source_image);
         crop = (Button) findViewById(R.id.crop);
         save = (Button) findViewById(R.id.save);
         crop.setOnClickListener(this);
         save.setOnClickListener(this);
         manager = new GameManager();
-        ImageCropFunction();
+        db = new StatReaderDbHelper(this);
+        //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission_group.CAMERA}, REQ_CODE_PICK_IMAGE);
+        if (Build.VERSION.SDK_INT >= 23){
+            if(checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED && !(getTempFile().exists())){
+                ImageCropFunction();
+            }else if(isStoragePermissionGranted()){
+                ImageCropFunction();
+            }
+        }else{
+            ImageCropFunction();
+        }
+
+
+        intent = new Intent(this, SettingsActivity.class);
     }
 
 
@@ -81,6 +98,7 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
                 ImageCropFunction();
                 break;
             case R.id.save:
+                startActivity(intent);
                 break;
         }
     }
@@ -96,17 +114,17 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
                         String filePath = Environment.getExternalStorageDirectory()
                                 + "/" + TEMP_PHOTO_FILE;
                         Log.d("Files" ,"path: " + filePath);
-                        manager.getDb().getWritableDatabase().execSQL("DROP TABLE IF EXISTS file");
-                        manager.getDb().getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS file(id TEXT PRIMARY KEY, path TEXT)");
+                        db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS file");
+                        db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS file(id TEXT PRIMARY KEY, path TEXT)");
                         ContentValues values = new ContentValues();
                         values.put("id", "filepath");
                         values.put("path", filePath);
-                        manager.getDb().getWritableDatabase().insert("file", null, values);
-                        manager.getDb().close();
+                        db.getWritableDatabase().insert("file", null, values);
+                        db.getWritableDatabase().close();
                         Bitmap selectedImage = BitmapFactory.decodeFile(filePath);
                         sourceImage.setImageBitmap(selectedImage);
                         //splitImage(filePath, chunkSideLength);
-                        if (tempFile.exists()) tempFile.delete();
+                        //if (tempFile.exists()) tempFile.delete();
                     }
                 }
                 break;
@@ -115,6 +133,8 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
 
     public void ImageCropFunction() {
         // Image Crop Code
+        File tempFile = getTempFile();
+        if (tempFile.exists()) tempFile.delete();
         try {
             Intent CropIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             //CropIntent.setDataAndType(uri, "image/*");
@@ -156,6 +176,37 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
             return true;
         return false;
     }
+
+    public  boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,}, 1);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            ImageCropFunction();
+        }
+    }
+
+    //    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//            ImageCropFunction();
+//        }
+//    }
 
     private void splitImage(String path, int chunkSideLength) {
 

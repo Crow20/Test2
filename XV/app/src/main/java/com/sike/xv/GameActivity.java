@@ -15,9 +15,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
@@ -38,6 +40,8 @@ import com.sike.xv.manager.ColumnEnum;
 import com.sike.xv.manager.GameManager;
 import com.sike.xv.manager.RowEnum;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +67,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     Button pause;
     Button start;
     Button sound;
+    Intent intent;
     MediaPlayer mp;
 
 
@@ -81,6 +86,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     int rows, cols;
     ArrayList<Integer> settimgsTmp;
     ArrayList<Bitmap> chunkedImage;
+    String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,8 +115,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         manager.createDB(this);
         adb = new AlertDialog.Builder(this);
         plates = manager.setFields(this, manager.getPlatesNum());
+        //plates = manager.setTestFields(this, manager.getPlatesNum());
         addButtons();
         handler = new Handler();
+        intent = new Intent(this, MainActivity.class);
         if(checkState("value")&&checkState("cache")){
             getLastTime();
         }
@@ -134,21 +142,29 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         } else {
-            Toast.makeText(this, "Выбрана картинка", Toast.LENGTH_SHORT).show();
-//            for (int i = 0; i < 4; i++) {
-//                for (int j = 0; j < 4; j++) {
-//                    plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int) (coorX[j] * density), (int) (coorY[i] * density)));
-//                    plates[i][j].getBtn().setText(String.valueOf(plates[i][j].getNumber()));
-//                    plates[i][j].getBtn().setBackground(getResources().getDrawable(R.drawable.button));
-//                    plates[i][j].getBtn().getBackground().setAlpha(64);
-//                    plates[i][j].getBtn().setTextColor(Color.WHITE);
-//                    plates[i][j].getBtn().setTextSize(9 * density);
-//                    plates[i][j].getBtn().setOnClickListener(this);
-//                    if (plates[i][j].getNumber() != 0) {
-//                        absoluteLayout.addView(plates[i][j].getBtn());
-//                    }
-//                }
-//            }
+            //Toast.makeText(this, "Выбрана картинка", Toast.LENGTH_SHORT).show();
+            String selectQuery = "SELECT * FROM file";
+
+            SQLiteDatabase db = manager.getDb().getWritableDatabase();
+            Cursor cursor = db.rawQuery(selectQuery, null);
+            if(cursor != null)
+                cursor.moveToFirst();
+            try {
+                path = cursor.getString(1);
+            } catch (NumberFormatException e) {
+                path = cursor.getString(0);
+            }
+            splitImage(path, 87);
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    plates[i][j].getBtn().setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, (int) (coorX[j] * density), (int) (coorY[i] * density)));
+                    plates[i][j].getBtn().setOnClickListener(this);
+                    if (plates[i][j].getNumber() != 0) {
+                        plates[i][j].getBtn().setBackground(new BitmapDrawable(chunkedImage.get(plates[i][j].getNumber()-1)));
+                        absoluteLayout.addView(plates[i][j].getBtn());
+                    }
+                }
+            }
         }
     }
 
@@ -186,6 +202,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS cache");
             manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS game");
             manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS value");
+            manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS file");
+            manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
             showDialog(DIALOG_EXIT);
         }
 //        manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null),"CREATE TABLE cache(first INTEGER PRIMARY KEY, two INTEGER, three INTEGER, four INTEGER )");
@@ -196,7 +214,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onButtonsClick(View v){
         switch (v.getId()){
             case R.id.menuGame:
-                Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
 //                if(manager.isGame()){
 //                    moveTaskToBack(true);
@@ -253,7 +270,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 gamePaused = false;
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS cache");
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS value");
-                manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
+                if(getAllEntries().get(0) == 12){
+                    manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 0 WHERE id = "+"'"+"color"+"'");
+                }else{
+                    manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
+                }
                 MillisecondTime = 0L;
                 System.gc();
                 recreate();
@@ -278,6 +299,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             switch (which) {
                 case Dialog.BUTTON_NEUTRAL:
                     //absoluteLayout.setOnClickListener(null);
+                    startActivity(intent);
                     break;
             }
         }
@@ -331,6 +353,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if(color == 12){
                 absoluteLayout.setBackground(getResources().getDrawable(R.drawable.rounded_corner));
             }else{
+                manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 absoluteLayout.setBackground(getResources().getDrawable(getResources().getIdentifier("font_" + color, "drawable", this.getPackageName())));
                 //absoluteLayout.setBackground(new BitmapDrawable(getRoundedCornerBitmap(getResources().getDrawable(getResources().getIdentifier("font_" + color, "drawable", this.getPackageName())))));
             }
@@ -377,7 +400,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     return String.valueOf(o1.get_time()).compareTo(String.valueOf(o2.get_time()));
                 }
             });
-            String text = R.string.best_time+list.get(0).get_time();
+            String text = "Лучшее время: "+list.get(0).get_time();
             best_time.setText(text);
         }else{
             best_time.setVisibility(View.INVISIBLE);
@@ -449,31 +472,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void splitImage(String path, int chunkSideLength) {
 
-        int higherChunkSide, widerChunkSide;
-
         Bitmap bitmap = BitmapFactory.decodeFile(path);
         rows = bitmap.getHeight() / chunkSideLength;
-        higherChunkSide = bitmap.getHeight() / rows;
         cols = bitmap.getWidth() / chunkSideLength;
-        widerChunkSide = bitmap.getWidth() / cols;
 
-        chunkedImage = new ArrayList<Bitmap>(rows * cols);
+        chunkedImage = new ArrayList<>(rows * cols);
 
-        if (higherChunkSide != chunkSideLength) {
-            if (widerChunkSide != chunkSideLength) {
-                int yCoord = 0;
-                for (int y = 0; y < rows; ++y) {
-                    int xCoord = 0;
-                    for (int x = 0; x < cols; ++x) {
-                        chunkedImage.add(Bitmap.createBitmap(bitmap, xCoord, yCoord, chunkSideLength, chunkSideLength));
-                        xCoord += chunkSideLength;
-                    }
-                    yCoord += chunkSideLength;
-                }
+        int yCoord = 0;
+        for (int y = 0; y < rows; ++y) {
+            int xCoord = 0;
+            for (int x = 0; x < cols; ++x) {
+                chunkedImage.add(Bitmap.createBitmap(bitmap, xCoord, yCoord, chunkSideLength, chunkSideLength));
+                xCoord += chunkSideLength;
             }
+            yCoord += chunkSideLength;
         }
-        //mergeImage(chunkedImage, 350, 350);
     }
+
 
 
     @Override

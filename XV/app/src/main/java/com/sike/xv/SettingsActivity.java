@@ -99,50 +99,62 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             //v.startAnimation(buttonClick);
             case R.id.color1:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 1 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color2:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 2 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color3:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 3 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color4:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 4 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color5:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 5 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color6:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 6 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color7:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 7 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color8:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 8 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color9:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 9 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color10:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 10 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color11:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 11 WHERE id = "+"'"+"color"+"'");
                 break;
             case R.id.color12:
                 v.startAnimation(buttonClick);
+                db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 12 WHERE id = "+"'"+"color"+"'");
                 break;
         }

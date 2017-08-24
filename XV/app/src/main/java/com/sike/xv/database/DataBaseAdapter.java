@@ -82,7 +82,7 @@ public class DataBaseAdapter extends BaseAdapter {
         StatEntryContract entryContract = getItem(position);
         if(entryContract.get_id()<=9){
             String tmp;
-            tmp = "Игрок " + String.valueOf(entryContract.get_id() + ".");
+            tmp = "Игра " + String.valueOf(entryContract.get_id() + ".");
             ((TextView) view.findViewById(R.id.col1)).setPadding(0, 0, (int)(10*density), 0);
             ((TextView) view.findViewById(R.id.col1)).setText(tmp);
             tmp = "Время: " + entryContract.get_time();
@@ -91,7 +91,7 @@ public class DataBaseAdapter extends BaseAdapter {
             ((TextView) view.findViewById(R.id.col3)).setText(tmp);
         }else{
             String tmp;
-            tmp = "Игрок " + String.valueOf(entryContract.get_id() + ".");
+            tmp = "Игра " + String.valueOf(entryContract.get_id() + ".");
             ((TextView) view.findViewById(R.id.col1)).setText(tmp);
             tmp = "Время: " + entryContract.get_time();
             ((TextView) view.findViewById(R.id.col2)).setText(tmp);
