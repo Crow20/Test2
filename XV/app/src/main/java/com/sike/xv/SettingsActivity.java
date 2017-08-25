@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sike.xv.database.StatReaderDbHelper;
 
 import java.util.ArrayList;
@@ -30,11 +32,14 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     RadioGroup soundChooser;
     SeekBar seekBar;
     Button soundOff;
+    int tmpEntry = 0;
+    MediaPlayer mp = null;
 
     int level;
     boolean clicked = false;
     private final String TAG = "SettingsStates";
     private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.8F);
+    private FirebaseAnalytics mFirebaseAnalytics;
 
 
     @Override
@@ -88,14 +93,18 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             db.getWritableDatabase().insert("settings", null, value1);
             db.close();
         }
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         buttonClick.setDuration(500L);
         Log.d(TAG, "SettingsActivity: onCreate()");
     }
+
+
 
     @Override
     public void onClick(View v) {
         setClicked(v);
         switch (v.getId()){
+
             //v.startAnimation(buttonClick);
             case R.id.color1:
                 v.startAnimation(buttonClick);
@@ -160,6 +169,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+
+
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
         switch (checkedId){
@@ -179,6 +190,16 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 5 WHERE id = "+"'"+"sound"+"'");
                 break;
         }
+        mp = MediaPlayer.create(this, getResources().getIdentifier("sound_" + getAllEntries().get(2), "raw", this.getPackageName()));
+        mp.setVolume((float) seekBar.getProgress()/100 ,(float) seekBar.getProgress()/100);
+        if(tmpEntry != getAllEntries().get(2)) mp.start();
+//        if(!(mp.isPlaying())) mp.release();
+//        if(mp == null){
+//
+//        }else {
+//            mp = MediaPlayer.create(this, getResources().getIdentifier("sound_" + getAllEntries().get(2), "raw", this.getPackageName()));
+//        }
+
     }
 
     public void imageButtonOnClick(View v){
@@ -282,6 +303,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     protected void onStart() {
         super.onStart();
         updateSettings();
+        App.settingsActivity = this;
         Log.d(TAG, "SettingsActivity: onStart()");
 
     }
@@ -290,6 +312,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     protected void onDestroy() {
         Log.d(TAG, "SettingsActivity: onDestroy()");
         super.onDestroy();
+        App.settingsActivity = null;
 
     }
 

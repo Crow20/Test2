@@ -52,6 +52,7 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TEMP_PHOTO_FILE = "temporary_holder.jpg";
     GameManager manager;
     StatReaderDbHelper db;
+    boolean execute = false;
 
     ArrayList<Bitmap> chunkedImage;
     Intent intent;
@@ -76,12 +77,7 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
         db = new StatReaderDbHelper(this);
         //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission_group.CAMERA}, REQ_CODE_PICK_IMAGE);
         if (Build.VERSION.SDK_INT >= 23){
-            if(checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED && !(getTempFile().exists())){
-                ImageCropFunction();
-            }else if(isStoragePermissionGranted()){
-                ImageCropFunction();
-            }
+            if(isStoragePermissionGranted()) ImageCropFunction();
         }else{
             ImageCropFunction();
         }
@@ -123,6 +119,7 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
                         db.getWritableDatabase().close();
                         Bitmap selectedImage = BitmapFactory.decodeFile(filePath);
                         sourceImage.setImageBitmap(selectedImage);
+                        execute = true;
                         //splitImage(filePath, chunkSideLength);
                         //if (tempFile.exists()) tempFile.delete();
                     }
@@ -195,7 +192,7 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED&&!execute){
             ImageCropFunction();
         }
     }
@@ -264,5 +261,17 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         sourceImage.setImageBitmap(bitmap);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        App.cropActivity = this;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        App.gameActivity = null;
     }
 }

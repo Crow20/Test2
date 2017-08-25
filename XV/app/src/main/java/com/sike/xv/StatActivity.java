@@ -50,6 +50,19 @@ public class StatActivity extends AppCompatActivity {
         });
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        App.statActivity = this;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        App.statActivity = null;
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return false;

@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sike.xv.database.StatEntryContract;
 import com.sike.xv.engine.Plate;
 import com.sike.xv.manager.ColumnEnum;
@@ -87,6 +88,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<Integer> settimgsTmp;
     ArrayList<Bitmap> chunkedImage;
     String path;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +124,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if(checkState("value")&&checkState("cache")){
             getLastTime();
         }
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         Log.d(TAG, "GameActivity: onCreate()");
     }
 

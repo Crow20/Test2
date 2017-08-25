@@ -14,6 +14,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.manager.GameManager;
 
@@ -28,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     StatReaderDbHelper db;
     GameManager manager;
     boolean exitApp = false;
+    private FirebaseAnalytics mFirebaseAnalytics;
+    private AdView mAdView;
 
     final String TAG = "States";
 
@@ -61,6 +66,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else{
             start.setText("Начать игру");
         }
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .build();
+        mAdView.loadAd(adRequest);
 
         Log.d(TAG, "MainActivity: onCreate()");
     }
