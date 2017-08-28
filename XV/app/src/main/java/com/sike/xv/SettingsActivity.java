@@ -313,7 +313,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             if(getAllEntries().get(0) != 12){
                 tmpBtn.setBackground(getResources().getDrawable(getResources().getIdentifier("color_"+getAllEntries().get(0), "drawable", this.getPackageName())));
             }else{
-                tmpBtn.setBackground(getResources().getDrawable(R.drawable.button));
+                tmpBtn.setBackgroundColor(Color.parseColor("#ff757575"));
             }
 
         }
