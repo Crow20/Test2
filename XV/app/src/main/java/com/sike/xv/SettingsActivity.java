@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.media.MediaPlayer;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +20,7 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sike.xv.database.StatReaderDbHelper;
@@ -104,7 +107,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         setClicked(v);
         switch (v.getId()){
-
             //v.startAnimation(buttonClick);
             case R.id.color1:
                 v.startAnimation(buttonClick);
@@ -190,9 +192,13 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 db.getWritableDatabase().execSQL("UPDATE settings SET number = 5 WHERE id = "+"'"+"sound"+"'");
                 break;
         }
-        mp = MediaPlayer.create(this, getResources().getIdentifier("sound_" + getAllEntries().get(2), "raw", this.getPackageName()));
-        mp.setVolume((float) seekBar.getProgress()/100 ,(float) seekBar.getProgress()/100);
-        if(tmpEntry != getAllEntries().get(2)) mp.start();
+        if(clicked){
+            mp = MediaPlayer.create(this, getResources().getIdentifier("sound_" + getAllEntries().get(2), "raw", this.getPackageName()));
+            mp.setVolume((float) seekBar.getProgress()/100 ,(float) seekBar.getProgress()/100);
+            mp.start();
+            Toast.makeText(this, "Music playing", Toast.LENGTH_SHORT).show();
+        }
+
 //        if(!(mp.isPlaying())) mp.release();
 //        if(mp == null){
 //
@@ -284,7 +290,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
         Button btn;
         btn = (Button)findViewById(getResources().getIdentifier("color"+list.get(0), "id", this.getPackageName()));
-        btn.setTextColor(Color.WHITE);
+        Drawable backgroundRes = btn.getBackground();
+        Drawable drawableRes = getResources().getDrawable(R.drawable.border);
+        Drawable[] drawableLayers = { backgroundRes, drawableRes };
+        LayerDrawable ld = new LayerDrawable(drawableLayers);
+        btn.setBackgroundDrawable(ld);
+        //btn.setBackground(getResources().getDrawable(R.drawable.image_button_back));
 //        btn.setTextSize(20f);
 //        btn.setHint("+");
     }
@@ -292,9 +303,19 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private void setClicked(View v){
         if(!(v.equals(findViewById(getResources().getIdentifier("color"+getAllEntries().get(0), "id", this.getPackageName()))))){
             Button btn = (Button) v;
-            btn.setTextColor(Color.WHITE);
+            Drawable backgroundRes = btn.getBackground();
+            Drawable drawableRes = getResources().getDrawable(R.drawable.border);
+            Drawable[] drawableLayers = { backgroundRes, drawableRes };
+            LayerDrawable ld = new LayerDrawable(drawableLayers);
+            btn.setBackgroundDrawable(ld);
+//            btn.setTextColor(Color.WHITE);
             Button tmpBtn = (Button) findViewById(getResources().getIdentifier("color"+getAllEntries().get(0), "id", this.getPackageName()));
-            tmpBtn.setTextColor(getResources().getColor(android.R.color.transparent));
+            if(getAllEntries().get(0) != 12){
+                tmpBtn.setBackground(getResources().getDrawable(getResources().getIdentifier("color_"+getAllEntries().get(0), "drawable", this.getPackageName())));
+            }else{
+                tmpBtn.setBackground(getResources().getDrawable(R.drawable.button));
+            }
+
         }
 
     }
@@ -319,6 +340,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume() {
         super.onResume();
+        clicked = true;
         Log.d(TAG, "SettingsActivity: onResume()");
     }
 

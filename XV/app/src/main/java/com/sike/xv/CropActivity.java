@@ -1,45 +1,33 @@
 package com.sike.xv;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.manager.GameManager;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+
 
 public class CropActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -54,11 +42,8 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
     StatReaderDbHelper db;
     boolean execute = false;
 
-    ArrayList<Bitmap> chunkedImage;
     Intent intent;
 
-    // Number of rows and columns in chunked image
-    int rows, cols;
 
     /** Called when the activity is first created. */
     @Override
@@ -104,25 +89,35 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQ_CODE_PICK_IMAGE:
-                if (resultCode == RESULT_OK) {
-                    if (data != null) {
-                        File tempFile = getTempFile();
-                        String filePath = Environment.getExternalStorageDirectory()
-                                + "/" + TEMP_PHOTO_FILE;
-                        Log.d("Files" ,"path: " + filePath);
-                        db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS file");
-                        db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS file(id TEXT PRIMARY KEY, path TEXT)");
-                        ContentValues values = new ContentValues();
-                        values.put("id", "filepath");
-                        values.put("path", filePath);
-                        db.getWritableDatabase().insert("file", null, values);
-                        db.getWritableDatabase().close();
-                        Bitmap selectedImage = BitmapFactory.decodeFile(filePath);
-                        sourceImage.setImageBitmap(selectedImage);
-                        execute = true;
-                        //splitImage(filePath, chunkSideLength);
-                        //if (tempFile.exists()) tempFile.delete();
+                if (data != null) {
+                    String filePath = this.getFilesDir()
+                            + "/" + TEMP_PHOTO_FILE;
+                    Log.d("Files", "path: " + filePath);
+                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                    bitmap = Bitmap.createScaledBitmap(bitmap, 350, 350, true);
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                    byte[] bitmapdata = bos.toByteArray();
+                    File f = new File(filePath);
+                    try {
+                        FileOutputStream fos = new FileOutputStream(f);
+                        fos.write(bitmapdata);
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+                    db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS file");
+                    db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS file(id TEXT PRIMARY KEY, path TEXT)");
+                    ContentValues values = new ContentValues();
+                    values.put("id", "filepath");
+                    values.put("path", filePath);
+                    db.getWritableDatabase().insert("file", null, values);
+                    db.getWritableDatabase().close();
+                    Bitmap selectedImage = BitmapFactory.decodeFile(filePath);
+                    sourceImage.setImageBitmap(selectedImage);
+                    execute = true;
+                    //splitImage(filePath, chunkSideLength);
+                    //if (tempFile.exists()) tempFile.delete();
                 }
                 break;
         }
@@ -130,8 +125,8 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
 
     public void ImageCropFunction() {
         // Image Crop Code
-        File tempFile = getTempFile();
-        if (tempFile.exists()) tempFile.delete();
+
+        //
         try {
             Intent CropIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             //CropIntent.setDataAndType(uri, "image/*");
@@ -140,9 +135,10 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
             CropIntent.putExtra("outputY", 350);
             CropIntent.putExtra("aspectX", 1);
             CropIntent.putExtra("aspectY", 1);
-            CropIntent.putExtra("scaleIfNeeded", true);
+            CropIntent.putExtra("scale", true);
             CropIntent.putExtra(MediaStore.EXTRA_OUTPUT, getTempUri());
             CropIntent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+            CropIntent.putExtra("return-data", true);
             startActivityForResult(CropIntent, REQ_CODE_PICK_IMAGE);
         } catch (ActivityNotFoundException e) {
 
@@ -153,25 +149,11 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private File getTempFile() {
-        if (isSDCARDMounted()) {
-
-            File f = new File(Environment.getExternalStorageDirectory(),TEMP_PHOTO_FILE);
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-
-            }
-            return f;
-        } else {
-            return null;
-        }
-    }
-
-    private boolean isSDCARDMounted(){
-        String status = Environment.getExternalStorageState();
-        if (status.equals(Environment.MEDIA_MOUNTED))
-            return true;
-        return false;
+        //File tempFile = getTempFile();
+        //if (tempFile.exists()) tempFile.delete();
+        File f = new File(this.getFilesDir(), TEMP_PHOTO_FILE);
+        if(f.exists()) f.getAbsoluteFile();
+        return f;
     }
 
     public  boolean isStoragePermissionGranted() {
@@ -197,72 +179,6 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    //    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//            ImageCropFunction();
-//        }
-//    }
-
-    private void splitImage(String path, int chunkSideLength) {
-
-        int higherChunkSide, widerChunkSide;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
-        rows = bitmap.getHeight() / chunkSideLength;
-        higherChunkSide = bitmap.getHeight() / rows;
-        cols = bitmap.getWidth() / chunkSideLength;
-        widerChunkSide = bitmap.getWidth() / cols;
-
-        chunkedImage = new ArrayList<Bitmap>(rows * cols);
-
-        if (higherChunkSide != chunkSideLength) {
-            if (widerChunkSide != chunkSideLength) {
-                int yCoord = 0;
-                for (int y = 0; y < rows; ++y) {
-                    int xCoord = 0;
-                    for (int x = 0; x < cols; ++x) {
-                        chunkedImage.add(Bitmap.createBitmap(bitmap, xCoord, yCoord, chunkSideLength, chunkSideLength));
-                        xCoord += chunkSideLength;
-                    }
-                    yCoord += chunkSideLength;
-                }
-            }
-        }
-        //mergeImage(chunkedImage, 350, 350);
-    }
-
-    void mergeImage(ArrayList<Bitmap> imageChunks, int width, int height) {
-
-        Collections.shuffle(imageChunks);
-
-        // create a bitmap of a size which can hold the complete image after merging
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
-
-        // create a canvas for drawing all those small images
-        Canvas canvas = new Canvas(bitmap);
-        int count = 0;
-        Bitmap currentChunk = imageChunks.get(0);
-
-        //Array of previous row chunks bottom y coordinates
-        int[] yCoordinates = new int[cols];
-        Arrays.fill(yCoordinates, 0);
-
-        for (int y = 0; y < rows; ++y) {
-            int xCoord = 0;
-            for (int x = 0; x < cols; ++x) {
-                currentChunk = imageChunks.get(count);
-                canvas.drawBitmap(currentChunk, xCoord, yCoordinates[x], null);
-                xCoord += currentChunk.getWidth();
-                yCoordinates[x] += currentChunk.getHeight();
-                count++;
-            }
-        }
-
-        sourceImage.setImageBitmap(bitmap);
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -272,6 +188,6 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        App.gameActivity = null;
+        App.cropActivity = null;
     }
 }

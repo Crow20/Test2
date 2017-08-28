@@ -8,8 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="ButtonTheme">
-        
+    <style name="ButtonTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
     </style>
 
 
