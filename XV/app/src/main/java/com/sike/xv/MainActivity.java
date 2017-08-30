@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.manager.GameManager;
@@ -66,10 +67,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else{
             start.setText("Начать игру");
         }
+        MobileAds.initialize(this, getResources().getString(R.string.banner_ad_unit_id));
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("DFAE2B5AE570D258304139A634AEEA03")
                 .build();
+
         mAdView.loadAd(adRequest);
 
         Log.d(TAG, "MainActivity: onCreate()");
