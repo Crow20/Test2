@@ -72,6 +72,22 @@ public class GameManager {
                 arrPlates[i][j] = plates[i][j].getNumber();
             }
         }
+        //Алгоритм для пролверки на разрешимость
+        /*int a[16];
+        for (int i=0; i<16; ++i)
+            cin >> a[i];
+
+        int inv = 0;
+        for (int i=0; i<16; ++i)
+            if (a[i])
+                for (int j=0; j<i; ++j)
+                    if (a[j] > a[i])
+                        ++inv;
+        for (int i=0; i<16; ++i)
+            if (a[i] == 0)
+                inv += 1 + i / 4;
+
+        puts ((inv & 1) ? "No Solution" : "Solution Exists");*/
         if(!(checkGameState("cache"))){
             db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS cache");
             db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS game");
