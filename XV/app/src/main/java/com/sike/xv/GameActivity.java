@@ -28,6 +28,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sike.xv.database.StatEntryContract;
+import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.engine.Plate;
 import com.sike.xv.manager.ColumnEnum;
 import com.sike.xv.manager.GameManager;
@@ -76,7 +78,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     AlertDialog.Builder adb;
     private Plate[][] plates;
     final String TAG = "States";
-    private static final String TEMP_PHOTO_FILE = "temporary_holder.jpg";
     long MillisecondTime, UpdateTime, TimeBuff = 0L ;
     Handler handler;
     int Seconds, Minutes;
@@ -88,6 +89,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<Integer> settimgsTmp;
     ArrayList<Bitmap> chunkedImage;
     String path;
+    StatReaderDbHelper db;
     private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
@@ -115,13 +117,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         manager = new GameManager();
         manager.createDB(this);
+        db = new StatReaderDbHelper(this);
         adb = new AlertDialog.Builder(this);
         plates = manager.setFields(this, manager.getPlatesNum());
         //plates = manager.setTestFields(this, manager.getPlatesNum());
         addButtons();
         handler = new Handler();
         intent = new Intent(this, MainActivity.class);
-        if(checkState("value")&&checkState("cache")){
+        if(db.checkState("value")&&db.checkState("cache")){
             getLastTime();
         }
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -144,7 +147,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
             }
-        } else {
+        } else if(getAllEntries().get(1) == 0 && db.checkState("file")){
             //Toast.makeText(this, "Выбрана картинка", Toast.LENGTH_SHORT).show();
             String selectQuery = "SELECT * FROM file";
 
@@ -191,7 +194,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         }
         if(manager.checkGameOver()){
-            //timerStopped = true;
             manager.setGame(false);
             manager.getDb().addEntry(new StatEntryContract(games, String.valueOf(time.getText()), manager.getCountSteps()));
             handler.removeCallbacks(timer);
@@ -204,24 +206,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
             showDialog(DIALOG_EXIT);
         }
-//        manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null),"CREATE TABLE cache(first INTEGER PRIMARY KEY, two INTEGER, three INTEGER, four INTEGER )");
-        //manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE cache");
-
     }
 
     public void onButtonsClick(View v){
         switch (v.getId()){
             case R.id.menuGame:
+                manager.updateCacheGame();
                 startActivity(intent);
-//                if(manager.isGame()){
-//                    moveTaskToBack(true);
-//                    intent.putExtra("game", manager.isGame());
-//                    startActivity(intent);
-//                }else{
-//                    intent.putExtra("new game", true);
-//                    startActivity(intent);
-//                }
-                //startActivity(intent);
                 break;
             case R.id.sound:
                 if(settimgsTmp.get(1) == 0){
@@ -244,8 +235,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     handler.removeCallbacks(timer);
                     gamePaused = true;
                     gameStarted = true;
-
-                    //handler.pause();
                 }else{
                     pausePic.setVisibility(View.INVISIBLE);
                     pause.setBackground(getResources().getDrawable(R.drawable.ic_pause_black_36dp));
@@ -257,26 +246,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         mTime = SystemClock.uptimeMillis()-MillisecondTime;
                         handler.postDelayed(timer, 0);
                     }
-                    //handler.resume();
                 }
-                //Toast.makeText(getApplicationContext(), "Pause", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.restart:
-                //manager.setToDefault();
                 gameStarted = false;
                 play = false;
                 gamePaused = false;
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS cache");
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "DROP TABLE IF EXISTS value");
-                if(getAllEntries().get(0) == 12){
-                    manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 0 WHERE id = "+"'"+"color"+"'");
-                }else{
-                    manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
-                }
                 MillisecondTime = 0L;
                 System.gc();
                 recreate();
-                //Toast.makeText(getApplicationContext(), "Restart", Toast.LENGTH_SHORT).show();
+//                absoluteLayout.removeAllViews();
+//                ViewGroup vg = absoluteLayout;
+//                plates = manager.setFields(this, manager.getPlatesNum());
+//                addButtons();
+//                vg.invalidate();
                 break;
         }
     }
@@ -296,7 +281,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_NEUTRAL:
-                    //absoluteLayout.setOnClickListener(null);
                     startActivity(intent);
                     break;
             }
@@ -330,17 +314,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         };
-    //            MillisecondTime = SystemClock.uptimeMillis() - StartTime;
-//            UpdateTime = TimeBuff + MillisecondTime;
-//            Seconds = (int) (UpdateTime / 1000);
-//            Minutes = Seconds / 60;
-//            Seconds = Seconds % 60;
-//            MilliSeconds = (int) (UpdateTime % 1000);
-//            time.setText("" + Minutes + ":"
-//                    + String.format("%02d", Seconds));
     private void setFonts(){
         int color = 0;
-        if(checkState("settings")){
+        if(db.checkState("settings")){
             SQLiteDatabase db = manager.getDb().getWritableDatabase();
             Cursor cursor = db.query("settings", new String[] { "id",
                             "number", "level" }, "id" + "=?",
@@ -353,22 +329,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }else{
                 manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 absoluteLayout.setBackground(getResources().getDrawable(getResources().getIdentifier("font_" + color, "drawable", this.getPackageName())));
-                //absoluteLayout.setBackground(new BitmapDrawable(getRoundedCornerBitmap(getResources().getDrawable(getResources().getIdentifier("font_" + color, "drawable", this.getPackageName())))));
             }
         }
     }
 
-    private void setVolume(int volume){
-        manager.getDb().getWritableDatabase().execSQL("UPDATE settings SET level = "+volume+" WHERE id = sound");
-        //manager.getDb().executeQueryRequest(getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null), "UPDATE settings SET level = "+volume+" WHERE id = sound");
-    }
 
     private void setSounds(){
-        int sound = 0;
-        int level = 0;
+        int sound;
+        int level;
         settimgsTmp = new ArrayList<>();
         mp = new MediaPlayer();
-        if(checkState("settings")){
+        if(db.checkState("settings")){
             SQLiteDatabase db = manager.getDb().getWritableDatabase();
             Cursor cursor = db.query("settings", new String[] { "id",
                             "number", "level" }, "id" + "=?",
@@ -407,15 +378,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void getLastTime(){
-        if(checkState("value")){
+        if(db.checkState("value")){
             SQLiteDatabase db = manager.getDb().getWritableDatabase();
             Cursor cursor = db.query("value", new String[] {
                             "time", "steps" }, "rowid" + "=?",
                     new String[] { "1"}, null, null, null, null);
             if (cursor != null)
                 cursor.moveToFirst();
-//            Double time1;
-//            time1 = Double.parseDouble(cursor.getString(0));
             try {
                 MillisecondTime = Long.parseLong(cursor.getString(0));
             } catch (NumberFormatException e) {
@@ -423,7 +392,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 MillisecondTime = bd.longValue();
             }
 
-//            MillisecondTime = Long.parseLong(cursor.getString(0));
             steps.setText(cursor.getString(1));
             Seconds = (int) (MillisecondTime / 1000);
             Minutes = Seconds / 60;
@@ -434,22 +402,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public boolean checkState(String tableName){
-        SQLiteDatabase db = getBaseContext().openOrCreateDatabase("StatReader.db", MODE_PRIVATE, null);
-        if (tableName == null || db == null)
-        {
-            return false;
-        }
-        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
-        if (!cursor.moveToFirst())
-        {
-            cursor.close();
-            return false;
-        }
-        int count = cursor.getInt(0);
-        cursor.close();
-        return count > 0;
-    }
+
 
     public ArrayList<Integer> getAllEntries(){
         ArrayList<Integer> list = new ArrayList<>();
@@ -537,8 +490,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
-        Log.d(TAG, "GameActivity: onDestroy()");
         super.onDestroy();
+        //manager.updateCacheGame();
+        Log.d(TAG, "GameActivity: onDestroy()");
         App.gameActivity = null;
     }
 
@@ -547,11 +501,3 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 }
-
-
-
-
-
-
-
-

@@ -5,19 +5,16 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
-import com.sike.xv.GameActivity;
 import com.sike.xv.database.StatReaderDbHelper;
 import com.sike.xv.engine.Plate;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-
-import static android.content.Context.MODE_PRIVATE;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by agritsenko on 25.07.2017.
@@ -32,16 +29,20 @@ public class GameManager {
     private boolean isGame = false;
     protected int [][] arrPlates = new int[4][4];
     int [][] platesNum = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 15, 14, 0}};
+    //int [][] platesNum = {{4, 8, 12, 0}, {3, 7, 11, 14},{2, 6, 10, 15},{1, 5, 9, 13}};
     protected Direction dir = Direction.NOTMOVE;
     private int x;
     private int y;
     protected int countSteps = 0;
     protected StatReaderDbHelper db;
+    moveTask mTask;
+    checkTask checkTask;
 
     public Plate[][] setTestFields(Context ctx, int [][] numbers){
         for(int i = 0; i < 4; i++){
             for(int j = 0; j < 4; j++){
                 plates[i][j] = new Plate(ctx, j, i, numbers[i][j]);
+                tmpList.add(plates[i][j]);
                 arrPlates[i][j] = plates[i][j].getNumber();
             }
         }
@@ -52,42 +53,19 @@ public class GameManager {
         for(int i = 0; i < 4; i++){
             for(int j = 0; j < 4; j++){
                 plates[i][j] = new Plate(ctx, j, i, numbers[i][j]);
+                tmpList.add(plates[i][j]);
             }
         }
-        for(int i = 0; i < 4; i++){
-          for(int j = 0; j < 4; j++){
-              tmpList.add(plates[i][j]);
-          }
-        }
         Collections.shuffle(tmpList);
+        while (checkArray()) Collections.shuffle(tmpList);
         int k =0;
         for(int i = 0; i < 4; i++){
             for(int j = 0; j < 4; j++){
                 plates[i][j] = tmpList.get(k);
                 k++;
-            }
-        }
-        for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 4; j++){
                 arrPlates[i][j] = plates[i][j].getNumber();
             }
         }
-        //Алгоритм для пролверки на разрешимость
-        /*int a[16];
-        for (int i=0; i<16; ++i)
-            cin >> a[i];
-
-        int inv = 0;
-        for (int i=0; i<16; ++i)
-            if (a[i])
-                for (int j=0; j<i; ++j)
-                    if (a[j] > a[i])
-                        ++inv;
-        for (int i=0; i<16; ++i)
-            if (a[i] == 0)
-                inv += 1 + i / 4;
-
-        puts ((inv & 1) ? "No Solution" : "Solution Exists");*/
         if(!(checkGameState("cache"))){
             db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS cache");
             db.getWritableDatabase().execSQL("DROP TABLE IF EXISTS game");
@@ -131,104 +109,112 @@ public class GameManager {
     }
 
     public boolean move(float flX, float flY, float density) {
-
-        boolean res = false;
-        // Координаты пустой клетки
-        int px0 = -1, py0 = -1;
-        int tmpPlate;
-        // Ищем пустую клетку на поле
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if (arrPlates[i][j] == 0) {
-                    px0 = j;
-                    py0 = i;
-                }
-            }
+        mTask = new moveTask();
+        mTask.execute(flX, flY, density);
+        try {
+            return mTask.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }catch (InterruptedException e){
+            e.printStackTrace();
         }
+        return false;
 
-        int x = (int) (flX/density);
-        int y = (int) (flY/density);
-
-        int tmp = x;
-        for(int i = 0; i < 4; i++){
-            if(i != 3){
-                if(tmp >= coorX[i] && tmp <= coorX[i+1]){
-                    if((coorX[i+1]+coorX[i])/2 < x) {
-                        x = i+1;
-
-                    }else {
-                        x = i;
-
-                    }
-                }
-            }else if(x == tmp && tmp != 0) {
-                x = 3;
-            }
-        }
-        tmp = y;
-        for(int j = 0; j < 4; j++) {
-            if (j != 3) {
-                if (tmp >= coorY[j] && tmp <= coorY[j + 1]) {
-                    if ((coorY[j + 1] + coorY[j]) / 2 < y) {
-                        y = j + 1;
-
-                    } else {
-                        y = j;
-
-                    }
-                }
-            } else if (y == tmp && tmp != 0) {
-                y = 3;
-            }
-        }
-        //tmpPlate[x][y]
-        if ((px0 == x || py0 == y) && (Math.abs(px0-x) == 1 || Math.abs(py0-y) == 1)&& this.isGame()) {
-            if (!(px0 == x && py0 == y)) {
-                if (px0 == x) {
-                    if (py0 < y) {
-                        arrPlates[y - 1][x] = arrPlates[y][x];
-                        arrPlates[y][x] = 0;
-                    } else {
-                        arrPlates[y + 1][x] = arrPlates[y][x];
-                        arrPlates[y][x] = 0;
-                    }
-                }
-                if (py0 == y) {
-                    if (px0 < x) {
-                        arrPlates[y][x - 1] = arrPlates[y][x];
-                        arrPlates[y][x] = 0;
-                    } else {
-                        arrPlates[y][x + 1] = arrPlates[y][x];
-                        arrPlates[y][x] = 0;
-                    }
-                }
-                //arrPlates[x][y] = 0;
-                //проверять наоборот икс и игрек
-                if (px0 < x && (x - px0 == 1)) {
-                    dir = Direction.RIGHT;
-                } else if (px0 > x&& (px0 - x == 1)) {
-                    dir = Direction.LEFT;
-                } else if (px0 == x) {
-                    if (py0 < y && (Math.abs(y-py0) == 1)) {
-                        dir = Direction.UP;
-                    } else if(py0 > y && Math.abs(y-py0) == 1){
-                        dir = Direction.DOWN;
-                    }
-                }
-                res = true;
-            } else {
-                res = false;
-            }
-        }
-        // Возвращаем результат
-        setX(px0);
-        setY(py0);
-        Log.d("Move", " Move="+String.valueOf(res));
-        if(res){
-            countSteps++;
-            updateCacheGame();
-        }
-        return res;
+//        boolean res = false;
+//        // Координаты пустой клетки
+//        int px0 = -1, py0 = -1;
+//        // Ищем пустую клетку на поле
+//        for (int i = 0; i < 4; i++) {
+//            for (int j = 0; j < 4; j++) {
+//                if (arrPlates[i][j] == 0) {
+//                    px0 = j;
+//                    py0 = i;
+//                }
+//            }
+//        }
+//
+//        int x = (int) (flX/density);
+//        int y = (int) (flY/density);
+//
+//        int tmp = x;
+//        for(int i = 0; i < 4; i++){
+//            if(i != 3){
+//                if(tmp >= coorX[i] && tmp <= coorX[i+1]){
+//                    if((coorX[i+1]+coorX[i])/2 < x) {
+//                        x = i+1;
+//
+//                    }else {
+//                        x = i;
+//
+//                    }
+//                }
+//            }else if(x == tmp && tmp != 0) {
+//                x = 3;
+//            }
+//        }
+//        tmp = y;
+//        for(int j = 0; j < 4; j++) {
+//            if (j != 3) {
+//                if (tmp >= coorY[j] && tmp <= coorY[j + 1]) {
+//                    if ((coorY[j + 1] + coorY[j]) / 2 < y) {
+//                        y = j + 1;
+//
+//                    } else {
+//                        y = j;
+//
+//                    }
+//                }
+//            } else if (y == tmp && tmp != 0) {
+//                y = 3;
+//            }
+//        }
+//        //tmpPlate[x][y]
+//        if ((px0 == x || py0 == y) && (Math.abs(px0-x) == 1 || Math.abs(py0-y) == 1)&& this.isGame()) {
+//            if (!(px0 == x && py0 == y)) {
+//                if (px0 == x) {
+//                    if (py0 < y) {
+//                        arrPlates[y - 1][x] = arrPlates[y][x];
+//                        arrPlates[y][x] = 0;
+//                    } else {
+//                        arrPlates[y + 1][x] = arrPlates[y][x];
+//                        arrPlates[y][x] = 0;
+//                    }
+//                }
+//                if (py0 == y) {
+//                    if (px0 < x) {
+//                        arrPlates[y][x - 1] = arrPlates[y][x];
+//                        arrPlates[y][x] = 0;
+//                    } else {
+//                        arrPlates[y][x + 1] = arrPlates[y][x];
+//                        arrPlates[y][x] = 0;
+//                    }
+//                }
+//                //arrPlates[x][y] = 0;
+//                //проверять наоборот икс и игрек
+//                if (px0 < x && (x - px0 == 1)) {
+//                    dir = Direction.RIGHT;
+//                } else if (px0 > x&& (px0 - x == 1)) {
+//                    dir = Direction.LEFT;
+//                } else if (px0 == x) {
+//                    if (py0 < y && (Math.abs(y-py0) == 1)) {
+//                        dir = Direction.UP;
+//                    } else if(py0 > y && Math.abs(y-py0) == 1){
+//                        dir = Direction.DOWN;
+//                    }
+//                }
+//                res = true;
+//            } else {
+//                res = false;
+//            }
+//        }
+//        // Возвращаем результат
+//        setX(px0);
+//        setY(py0);
+//        Log.d("Move", " Move="+String.valueOf(res));
+//        if(res){
+//            countSteps++;
+//        }
+//        return res;
     }
 
     public void buttonAnimator(View v, float curX, float endX, float curY, float endY, Direction dir){
@@ -252,21 +238,31 @@ public class GameManager {
         //ObjectAnimator.ofFloat(v, View.X, v.getX(), 140*density).start();
     }
 
-    public boolean checkGameOver()
-    {
-        int a = 1;
-        boolean res = true;
-        for (int i = 0; i <4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if(i == 3 && j == 3) a=0;
-                if (this.arrPlates[i][j] != a) {
-                    res = false;
-
-                }
-                a++;
-            }
+    public boolean checkGameOver() {
+        checkTask = new checkTask();
+        checkTask.execute();
+        try {
+            return checkTask.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }catch (ExecutionException e){
+            e.printStackTrace();
         }
-        return res;
+        return false;
+//
+//        int a = 1;
+//        boolean res = true;
+//        for (int i = 0; i <4; i++) {
+//            for (int j = 0; j < 4; j++) {
+//                if(i == 3 && j == 3) a=0;
+//                if (this.arrPlates[i][j] != a) {
+//                    res = false;
+//
+//                }
+//                a++;
+//            }
+//        }
+//        return res;
     }
 
     public void updateCacheGame(){
@@ -302,6 +298,152 @@ public class GameManager {
         cursor.close();
         return count > 0;
     }
+
+    private boolean checkArray(){
+        int inv = 0;
+        for (int i=0; i<16; ++i){
+            if (tmpList.get(i).getNumber() != 0){
+                for (int j=0; j<i; ++j){
+                    if (tmpList.get(j).getNumber() > tmpList.get(i).getNumber()) ++inv;
+                }
+            }
+        }
+        for (int i=0; i<16; ++i){
+            if (tmpList.get(i).getNumber() == 0) inv += 1 + i / 4;
+        }
+        if(inv % 2 != 0){
+            Log.d("Solutions", "Не решаемая конфигурация");
+            return true;
+        }else {
+            Log.d("Solutions", "Решаемая конфигурация");
+            return false;
+        }
+    }
+
+    private class moveTask extends AsyncTask<Float, Void, Boolean>{
+        @Override
+        protected Boolean doInBackground(Float... params) {
+            boolean res = false;
+            // Координаты пустой клетки
+            int px0 = -1, py0 = -1;
+            float flX = params[0];
+            float flY = params[1];
+            float density = params[2];
+            // Ищем пустую клетку на поле
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (arrPlates[i][j] == 0) {
+                        px0 = j;
+                        py0 = i;
+                    }
+                }
+            }
+
+            int x = (int) (flX/density);
+            int y = (int) (flY/density);
+
+            int tmp = x;
+            for(int i = 0; i < 4; i++){
+                if(i != 3){
+                    if(tmp >= coorX[i] && tmp <= coorX[i+1]){
+                        if((coorX[i+1]+coorX[i])/2 < x) {
+                            x = i+1;
+
+                        }else {
+                            x = i;
+
+                        }
+                    }
+                }else if(x == tmp && tmp != 0) {
+                    x = 3;
+                }
+            }
+            tmp = y;
+            for(int j = 0; j < 4; j++) {
+                if (j != 3) {
+                    if (tmp >= coorY[j] && tmp <= coorY[j + 1]) {
+                        if ((coorY[j + 1] + coorY[j]) / 2 < y) {
+                            y = j + 1;
+
+                        } else {
+                            y = j;
+
+                        }
+                    }
+                } else if (y == tmp && tmp != 0) {
+                    y = 3;
+                }
+            }
+            //tmpPlate[x][y]
+            if ((px0 == x || py0 == y) && (Math.abs(px0-x) == 1 || Math.abs(py0-y) == 1)&& isGame) {
+                if (!(px0 == x && py0 == y)) {
+                    if (px0 == x) {
+                        if (py0 < y) {
+                            arrPlates[y - 1][x] = arrPlates[y][x];
+                            arrPlates[y][x] = 0;
+                        } else {
+                            arrPlates[y + 1][x] = arrPlates[y][x];
+                            arrPlates[y][x] = 0;
+                        }
+                    }
+                    if (py0 == y) {
+                        if (px0 < x) {
+                            arrPlates[y][x - 1] = arrPlates[y][x];
+                            arrPlates[y][x] = 0;
+                        } else {
+                            arrPlates[y][x + 1] = arrPlates[y][x];
+                            arrPlates[y][x] = 0;
+                        }
+                    }
+                    //arrPlates[x][y] = 0;
+                    //проверять наоборот икс и игрек
+                    if (px0 < x && (x - px0 == 1)) {
+                        dir = Direction.RIGHT;
+                    } else if (px0 > x&& (px0 - x == 1)) {
+                        dir = Direction.LEFT;
+                    } else if (px0 == x) {
+                        if (py0 < y && (Math.abs(y-py0) == 1)) {
+                            dir = Direction.UP;
+                        } else if(py0 > y && Math.abs(y-py0) == 1){
+                            dir = Direction.DOWN;
+                        }
+                    }
+                    res = true;
+                } else {
+                    res = false;
+                }
+            }
+            // Возвращаем результат
+            setX(px0);
+            setY(py0);
+            Log.d("Move", " Move="+String.valueOf(res));
+            if(res){
+                countSteps++;
+            }
+            return res;
+        }
+    }
+
+    private class checkTask extends AsyncTask<Void, Void, Boolean>{
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            int a = 1;
+            boolean res = true;
+            for (int i = 0; i <4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if(i == 3 && j == 3) a=0;
+                    if (arrPlates[i][j] != a) {
+                        res = false;
+
+                    }
+                    a++;
+                }
+            }
+            return res;
+        }
+    }
+
+    private class Animator extends AsyncTask<>
 
     public void createDB(Context ctx){
         db = new StatReaderDbHelper(ctx);

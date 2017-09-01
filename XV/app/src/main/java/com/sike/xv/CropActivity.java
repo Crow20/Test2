@@ -42,11 +42,8 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
     GameManager manager;
     StatReaderDbHelper db;
     boolean execute = false;
-
     Intent intent;
 
-
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -61,14 +58,11 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
         save.setOnClickListener(this);
         manager = new GameManager();
         db = new StatReaderDbHelper(this);
-        //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission_group.CAMERA}, REQ_CODE_PICK_IMAGE);
         if (Build.VERSION.SDK_INT >= 23){
             if(isStoragePermissionGranted()) ImageCropFunction();
         }else{
             ImageCropFunction();
         }
-
-
         intent = new Intent(this, SettingsActivity.class);
     }
 
@@ -117,20 +111,16 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
                     Bitmap selectedImage = BitmapFactory.decodeFile(filePath);
                     sourceImage.setImageBitmap(selectedImage);
                     execute = true;
-                    //splitImage(filePath, chunkSideLength);
-                    //if (tempFile.exists()) tempFile.delete();
+                }else{
+                    db.getWritableDatabase().execSQL("UPDATE settings SET level = 1 WHERE id = "+"'"+"color"+"'");
                 }
                 break;
         }
     }
 
     public void ImageCropFunction() {
-        // Image Crop Code
-
-        //
         try {
             Intent CropIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            //CropIntent.setDataAndType(uri, "image/*");
             CropIntent.putExtra("crop", "true");
             CropIntent.putExtra("outputX", 350);
             CropIntent.putExtra("outputY", 350);
@@ -150,8 +140,6 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private File getTempFile() {
-        //File tempFile = getTempFile();
-        //if (tempFile.exists()) tempFile.delete();
         File f = new File(this.getFilesDir(), TEMP_PHOTO_FILE);
         if(f.exists()) f.getAbsoluteFile();
         return f;
@@ -166,8 +154,7 @@ public class CropActivity extends AppCompatActivity implements View.OnClickListe
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,}, 1);
                 return false;
             }
-        }
-        else { //permission is automatically granted on sdk<23 upon installation
+        }else{
             return true;
         }
     }

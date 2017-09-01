@@ -162,4 +162,21 @@ public class StatReaderDbHelper extends SQLiteOpenHelper {
         list.add(tmpArray);
         return list;
     }
+
+    public boolean checkState(String tableName){
+        SQLiteDatabase db = this.getWritableDatabase();
+        if (tableName == null || db == null)
+        {
+            return false;
+        }
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
+        if (!cursor.moveToFirst())
+        {
+            cursor.close();
+            return false;
+        }
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count > 0;
+    }
 }
